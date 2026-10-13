@@ -4,7 +4,16 @@
 <base target="_top">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Intake</title>
+<title>Velmo Coaching</title>
+<meta name="description" content="Programını hazırlamak için birkaç kısa soru. Bir dakikanı alır.">
+<meta property="og:title" content="Velmo Coaching">
+<meta property="og:description" content="Programını hazırlamak için birkaç kısa soru. Bir dakikanı alır.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Velmo Coaching">
+<meta name="theme-color" content="#F3F1EC" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0B0B0C" media="(prefers-color-scheme: dark)">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='110 100 830 760'><style>path{fill:%230C0C0D}@media(prefers-color-scheme:dark){path{fill:%23F3F1EC}}</style><path d='M179.2 235.0 L394.2 802.7 L577.1 802.7 L362.1 235.0Z' opacity='.5'/><path d='M708.0 199.2 L429.8 802.7 L618.0 802.7 L863.2 270.8 L869.3 252.7 L871.1 233.5 L868.6 214.6 L862.0 196.6 L851.5 180.6 L837.8 167.3 L821.4 157.3 L803.3 151.3 L784.1 149.5 L765.2 152.0 L747.2 158.6 L731.2 169.1 L717.9 182.8Z'/></svg>">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..110,400..800&display=swap" rel="stylesheet">
@@ -82,11 +91,15 @@
   .hint { margin: 10px 0 0; color: var(--muted); font-size: 16px; text-wrap: pretty; }
   .control { margin-top: auto; padding-top: 28px; }
 
-  /* Intro */
-  .intro h1 { font-size: 40px; line-height: 1.02; letter-spacing: -.03em; font-variation-settings: "wdth" 92; }
-  .intro .hint { font-size: 18px; margin-top: 16px; max-width: 30ch; }
-  .intro .mark { margin-top: auto; width: 56px; height: 4px; background: var(--accent); border-radius: 2px; }
-  .intro .head { margin-top: 20px; }
+  /* Welcome: the brand is the heading */
+  .intro .brandmark { margin-top: auto; width: 72px; height: 66px; color: var(--ink); }
+  .intro .brandmark svg, .signoff svg { display: block; width: 100%; height: 100%; fill: currentColor; }
+  .intro h1 { margin-top: 22px; font-size: 44px; line-height: .98; letter-spacing: -.035em;
+    font-variation-settings: "wdth" 88; }
+  .intro .hint { font-size: 18px; line-height: 1.4; margin-top: 16px; max-width: 30ch; }
+  .signoff { display: flex; align-items: center; gap: 10px; margin: 36px 0 8px; font-size: 15px; font-weight: 700;
+    letter-spacing: -.01em; }
+  .signoff span.m { width: 22px; height: 20px; flex: none; }
 
   /* Choices: full-width rows that fill when picked, a check at the trailing edge */
   .list { display: grid; gap: 8px; }
@@ -129,7 +142,6 @@
   .part .num output { font-size: 46px; }
   .part .num output.l4 { font-size: 42px; }
   .part .num output.l5 { font-size: 36px; }
-  .part .step { width: 44px; height: 44px; }
   .part .unit { display: none; }
   .part .ruler { margin-top: 8px; height: 64px; }
   .part .ruler::after { top: -2px; height: 40px; }
@@ -147,15 +159,11 @@
   .field.note { font-size: 17px; font-weight: 500; margin-top: 18px; letter-spacing: 0; }
 
   /* Number: big numeral, steppers, ruler */
-  .num { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .num { display: flex; align-items: center; justify-content: center; }
   .num output { flex: 1; text-align: center; font-weight: 750; letter-spacing: -.03em; line-height: 1;
     font-variation-settings: "wdth" 84; font-variant-numeric: tabular-nums; font-size: 84px; }
   .num output.l4 { font-size: 72px; }
   .num output.l5 { font-size: 58px; }
-  .step { width: 52px; height: 52px; border-radius: 50%; background: var(--fill); display: grid; place-items: center;
-    flex: none; transition: transform .16s var(--ease), background .16s ease; }
-  .step:active { transform: scale(.92); background: var(--fill-press); }
-  .step svg { width: 22px; height: 22px; }
   .unit { text-align: center; color: var(--muted); font-size: 16px; font-weight: 560; margin-top: 6px; }
   .ruler { position: relative; margin: 26px -24px 0; height: 84px; }
   .ruler::after { content: ""; position: absolute; left: 50%; top: -6px; width: 3px; height: 54px; margin-left: -1.5px;
@@ -220,7 +228,7 @@
     .screen.fwd, .screen.back { animation: fade .2s ease both; }
     @keyframes fade { from { opacity: 0; } }
     .sent .tick path { animation: none; stroke-dashoffset: 0; }
-    .progress i, .step, .cta, .item, .item .mark, .day { transition: none; }
+    .progress i, .cta, .item, .item .mark, .day { transition: none; }
   }
 </style>
 </head>
@@ -244,13 +252,38 @@
 <script>
 (function () {
   'use strict';
-  var FALLBACK = {"code":"","questions":[{"id":"age","type":"number","tr":"Kaç yaşındasın?","en":"How old are you?","hintTr":"","hintEn":"","options":"","settings":"min=14; max=80; step=1; start=30; unit_tr=yaş; unit_en=years"},{"id":"height","type":"number","tr":"Boyun kaç?","en":"How tall are you?","hintTr":"","hintEn":"","options":"","settings":"min=140; max=215; step=1; start=172; unit_tr=cm; unit_en=cm"},{"id":"weight","type":"number","tr":"Şu anki kilon?","en":"Your current weight?","hintTr":"","hintEn":"","options":"","settings":"min=40; max=180; step=0.5; start=75; unit_tr=kg; unit_en=kg"},{"id":"steps","type":"number","tr":"Günde ortalama kaç adım atıyorsun?","en":"How many steps do you average a day?","hintTr":"Telefonundaki Sağlık uygulamasından bakabilirsin.","hintEn":"You can check the Health app on your phone.","options":"","settings":"min=0; max=25000; step=500; start=6000; unit_tr=adım; unit_en=steps; skip=yes"},{"id":"foods","type":"multi","tr":"Bunlardan hangilerini yersin?","en":"Which of these do you eat?","hintTr":"Yediklerinin hepsine dokun.","hintEn":"Tap everything you eat.","options":"chicken | Tavuk | Chicken\nbeef | Kırmızı et | Red meat\nfish | Balık | Fish\negg | Yumurta | Eggs\nyoghurt | Yoğurt | Yoghurt\ncheese | Peynir | Cheese\nlegumes | Baklagil | Beans, lentils\nrice | Pirinç | Rice\nbulgur | Bulgur | Bulgur\npasta | Makarna | Pasta\npotato | Patates | Potatoes\nbread | Ekmek | Bread\noats | Yulaf | Oats\nfruit | Meyve | Fruit","settings":"min=1; cols=2"},{"id":"meals","type":"single","tr":"Günde kaç öğün yersin?","en":"How many meals a day do you eat?","hintTr":"","hintEn":"","options":"2 | 2 | 2\n3 | 3 | 3\n4 | 4 | 4\n5 | 5 | 5\n6 | 6 ve üzeri | 6 or more","settings":""},{"id":"health","type":"yesno","tr":"Sakatlığın ya da sağlık sorunun var mı?","en":"Any injury or health issue?","hintTr":"","hintEn":"","options":"back | Bel | Lower back\nknee | Diz | Knee\nshoulder | Omuz | Shoulder\nneck | Boyun | Neck\nhip | Kalça | Hip\nwrist | Bilek | Wrist\nheart_bp | Kalp / tansiyon | Heart / blood pressure\nother | Diğer | Other","settings":"note=yes"},{"id":"train_days","type":"multi","tr":"Haftada dört gün çalışacağız. Hangi günler sana uyar?","en":"We’ll train four days a week. Which days suit you?","hintTr":"En az dört gün seç.","hintEn":"Pick at least four.","options":"mon | Pazartesi | Monday | Pzt | Mon\ntue | Salı | Tuesday | Sal | Tue\nwed | Çarşamba | Wednesday | Çar | Wed\nthu | Perşembe | Thursday | Per | Thu\nfri | Cuma | Friday | Cum | Fri\nsat | Cumartesi | Saturday | Cmt | Sat\nsun | Pazar | Sunday | Paz | Sun","settings":"min=4; look=days"},{"id":"train_time","type":"multi","tr":"Günün hangi saatleri uygun?","en":"What time of day works?","hintTr":"Birden fazla seçebilirsin.","hintEn":"You can pick more than one.","options":"morning | Sabah · 06–10 | Morning · 06–10\nmidday | Öğle · 10–14 | Midday · 10–14\nafternoon | Öğleden sonra · 14–18 | Afternoon · 14–18\nevening | Akşam · 18–22 | Evening · 18–22","settings":"min=1"}],"texts":{"intro":"no","review":"no","intro_title_tr":"Selam, tanıştığımıza sevindim.","intro_body_tr":"Programını hazırlamak için birkaç kısa sorum var. Bir dakikanı alır.","intro_title_en":"Hi, good to meet you.","intro_body_en":"A few quick questions so I can build your program. It takes about a minute.","after_title_tr":"Bilgilerin bana ulaştı.","after_title_en":"I’ve got your answers.","after_heading_tr":"İlk seanstan önce","after_heading_en":"Before the first session","after_tr":"Antrenmandan 3-4 saat önce mutlaka bir öğün ye: bir karbonhidrat (pirinç, patates, ekmek) ve bir protein (tavuk, et, yumurta).\nBir saatten az kaldıysa hızlı bir karbonhidrat al: muz, bal ya da beyaz ekmek.\nAntrenmandan önce kahveni iç.\nAntrenmanlara eşofman ve ceketle gelmeni istiyorum.","after_en":"Eat a meal 3-4 hours before training: a carb (rice, potatoes, bread) and a protein (chicken, meat, eggs).\nIf less than an hour is left, have a fast carb: a banana, honey or white bread.\nHave your coffee before training.\nCome to training in a tracksuit and a jacket.","after_close_tr":"İhtiyaç duyduğum diğer bilgileri seanslar sırasında birlikte netleştiririz.","after_close_en":"Anything else I need, we’ll sort out together during the sessions."}};
+  var FALLBACK = {"code":"","questions":[{"id":"age","type":"number","tr":"Kaç yaşındasın?","en":"How old are you?","hintTr":"","hintEn":"","options":"","settings":"min=14; max=80; step=1; start=30; unit_tr=yaş; unit_en=years"},{"id":"height","type":"number","tr":"Boyun kaç?","en":"How tall are you?","hintTr":"","hintEn":"","options":"","settings":"min=140; max=215; step=1; start=172; unit_tr=cm; unit_en=cm"},{"id":"weight","type":"number","tr":"Şu anki kilon?","en":"Your current weight?","hintTr":"","hintEn":"","options":"","settings":"min=40; max=180; step=0.5; start=75; unit_tr=kg; unit_en=kg"},{"id":"steps","type":"number","tr":"Günde ortalama kaç adım atıyorsun?","en":"How many steps do you average a day?","hintTr":"Telefonundaki Sağlık uygulamasından bakabilirsin.","hintEn":"You can check the Health app on your phone.","options":"","settings":"min=0; max=25000; step=500; start=6000; unit_tr=adım; unit_en=steps; skip=yes"},{"id":"foods","type":"multi","tr":"Bunlardan hangilerini yersin?","en":"Which of these do you eat?","hintTr":"Yediklerinin hepsine dokun.","hintEn":"Tap everything you eat.","options":"chicken | Tavuk | Chicken\nbeef | Kırmızı et | Red meat\nfish | Balık | Fish\negg | Yumurta | Eggs\nyoghurt | Yoğurt | Yoghurt\ncheese | Peynir | Cheese\nlegumes | Baklagil | Beans, lentils\nrice | Pirinç | Rice\nbulgur | Bulgur | Bulgur\npasta | Makarna | Pasta\npotato | Patates | Potatoes\nbread | Ekmek | Bread\noats | Yulaf | Oats\nfruit | Meyve | Fruit","settings":"min=1; cols=2"},{"id":"meals","type":"single","tr":"Günde kaç öğün yersin?","en":"How many meals a day do you eat?","hintTr":"","hintEn":"","options":"2 | 2 | 2\n3 | 3 | 3\n4 | 4 | 4\n5 | 5 | 5\n6 | 6 ve üzeri | 6 or more","settings":""},{"id":"health","type":"yesno","tr":"Sakatlığın ya da sağlık sorunun var mı?","en":"Any injury or health issue?","hintTr":"","hintEn":"","options":"back | Bel | Lower back\nknee | Diz | Knee\nshoulder | Omuz | Shoulder\nneck | Boyun | Neck\nhip | Kalça | Hip\nwrist | Bilek | Wrist\nheart_bp | Kalp / tansiyon | Heart / blood pressure\nother | Diğer | Other","settings":"note=yes"},{"id":"train_days","type":"multi","tr":"Haftada dört gün çalışacağız. Hangi günler sana uyar?","en":"We’ll train four days a week. Which days suit you?","hintTr":"En az dört gün seç.","hintEn":"Pick at least four.","options":"mon | Pazartesi | Monday | Pzt | Mon\ntue | Salı | Tuesday | Sal | Tue\nwed | Çarşamba | Wednesday | Çar | Wed\nthu | Perşembe | Thursday | Per | Thu\nfri | Cuma | Friday | Cum | Fri\nsat | Cumartesi | Saturday | Cmt | Sat\nsun | Pazar | Sunday | Paz | Sun","settings":"min=4; look=days"},{"id":"train_time","type":"multi","tr":"Günün hangi saatleri uygun?","en":"What time of day works?","hintTr":"Birden fazla seçebilirsin.","hintEn":"You can pick more than one.","options":"morning | Sabah · 06–10 | Morning · 06–10\nmidday | Öğle · 10–14 | Midday · 10–14\nafternoon | Öğleden sonra · 14–18 | Afternoon · 14–18\nevening | Akşam · 18–22 | Evening · 18–22","settings":"min=1"}],"texts":{"brand":"Velmo Coaching","intro":"yes","review":"no","intro_title_tr":"Selam, tanıştığımıza sevindim.","intro_body_tr":"Programını hazırlamak için birkaç kısa soru. Bir dakikanı alır.","intro_title_en":"Hi, good to meet you.","intro_body_en":"A few quick questions to build your program. It takes about a minute.","after_title_tr":"Bilgilerin bana ulaştı.","after_title_en":"I’ve got your answers.","after_heading_tr":"İlk seanstan önce","after_heading_en":"Before the first session","after_tr":"Antrenmandan 3-4 saat önce mutlaka bir öğün ye: bir karbonhidrat (pirinç, patates, ekmek) ve bir protein (tavuk, et, yumurta).\nBir saatten az kaldıysa hızlı bir karbonhidrat al: muz, bal ya da beyaz ekmek.\nAntrenmandan önce kahveni iç.\nAntrenmanlara eşofman ve ceketle gelmeni istiyorum.","after_en":"Eat a meal 3-4 hours before training: a carb (rice, potatoes, bread) and a protein (chicken, meat, eggs).\nIf less than an hour is left, have a fast carb: a banana, honey or white bread.\nHave your coffee before training.\nCome to training in a tracksuit and a jacket.","after_close_tr":"İhtiyaç duyduğum diğer bilgileri seanslar sırasında birlikte netleştiririz.","after_close_en":"Anything else I need, we’ll sort out together during the sessions."}};
   /** The sheet's script: it hands out the questions and takes the answers. Asked without any Google sign-in. */
   var API = 'https://script.google.com/macros/s/AKfycbxm3voEUyRaGcK0VkKzgsUQj-dTcpO_DFjN-UUxutY2-3jxr33s9eNnsFYL2DvyeHggkw/exec';
   var query = {};
   try { location.search.replace(/[?&]([^=&]+)=([^&]*)/g, function (_, k, v) { query[k] = decodeURIComponent(v); }); } catch (e) {}
   if (query.theme === 'dark' || query.theme === 'light') document.documentElement.setAttribute('data-theme', query.theme);
   var touched = false;   // the person has answered something: the questions are not swapped under them
+
+  /**
+   * One light tap per ruler step. Android vibrates; on an iPhone the only way a page can make a tap is by
+   * flipping a hidden switch control (iOS 18 and later), so that is what this does. Elsewhere it does nothing.
+   */
+  var tick = (function () {
+    var last = 0, label = null;
+    try {
+      var input = document.createElement('input');
+      input.type = 'checkbox';
+      input.setAttribute('switch', '');
+      label = document.createElement('label');
+      label.setAttribute('aria-hidden', 'true');
+      label.style.cssText = 'position:fixed;left:-999px;top:0;opacity:0;pointer-events:none';
+      label.appendChild(input);
+      document.body.appendChild(label);
+    } catch (e) { label = null; }
+    return function () {
+      var now = Date.now();
+      if (now - last < 26) return;
+      last = now;
+      try { if (navigator.vibrate) { navigator.vibrate(5); return; } } catch (e) {}
+      try { if (label) label.click(); } catch (e) {}
+    };
+  })();
 
   function start(BOOT) {
   var UI = {
@@ -270,8 +303,7 @@
       empty: 'This link has no questions.', locale: 'en-GB' }
   };
   var ICON = {
-    minus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>',
-    plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+    brand: '<svg viewBox="170 140 710 672" aria-hidden="true"><path d="M179.2 235.0 L394.2 802.7 L577.1 802.7 L362.1 235.0Z" opacity=".5"/><path d="M708.0 199.2 L429.8 802.7 L618.0 802.7 L863.2 270.8 L869.3 252.7 L871.1 233.5 L868.6 214.6 L862.0 196.6 L851.5 180.6 L837.8 167.3 L821.4 157.3 L803.3 151.3 L784.1 149.5 L765.2 152.0 L747.2 158.6 L731.2 169.1 L717.9 182.8Z"/></svg>',
     chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>',
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     tick: '<svg class="tick" viewBox="0 0 56 56" aria-hidden="true"><path d="M10 29l13 13 23-27"/></svg>'
@@ -500,11 +532,16 @@
       clearTimeout(settle);
       settle = setTimeout(function () { programmatic = false; }, 360);
     }
+    // Only the person moves the value: a scroll that no touch, wheel or key started is ignored.
+    var byHand = false;
+    ['pointerdown', 'touchstart', 'wheel'].forEach(function (type) {
+      scroller.addEventListener(type, function () { byHand = true; programmatic = false; }, { passive: true });
+    });
     scroller.addEventListener('scroll', function () {
-      if (programmatic) return;
+      if (programmatic || !byHand) return;
       var index = Math.max(0, Math.min(count, Math.round(scroller.scrollLeft / GAP)));
       var value = Number((min + index * step).toFixed(decimals(q)));
-      if (value !== a.v) { a.v = value; a.skipped = false; paint(); }
+      if (value !== a.v) { a.v = value; a.skipped = false; paint(); tick(); }
       clearTimeout(settle);
       settle = setTimeout(function () {
         save();
@@ -517,27 +554,14 @@
       else if (e.key === 'End') { e.preventDefault(); set(count, true); }
       else if (move) { e.preventDefault(); set(indexOf(a.v) + move, true); }
     });
-    /** A stepper: one step a tap; held down, it keeps stepping. */
-    function stepper(name, icon, delta) {
-      var button = el('button', { class: 'step', type: 'button', 'aria-label': t(name), html: icon });
-      var wait = null, run = null, held = false;
-      function stop() { clearTimeout(wait); clearInterval(run); wait = run = null; }
-      button.addEventListener('pointerdown', function () {
-        held = false;
-        stop();
-        wait = setTimeout(function () {
-          held = true;
-          run = setInterval(function () { set(indexOf(a.v) + delta, false); }, 70);
-        }, 380);
-      });
-      ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (type) { button.addEventListener(type, stop); });
-      button.addEventListener('click', function () { if (!held) set(indexOf(a.v) + delta, true); held = false; });
-      return button;
-    }
     paint();
-    requestAnimationFrame(function () { set(indexOf(a.v), false); });
+    // Put the ruler on the value as soon as it is laid out (a hidden tab holds animation frames back).
+    var placed = false;
+    var place = function () { if (!placed && scroller.isConnected) { placed = true; set(indexOf(a.v), false); } };
+    requestAnimationFrame(place);
+    setTimeout(place, 80);
     return el('div', { class: 'control' }, [
-      el('div', { class: 'num' }, [stepper('less', ICON.minus, -1), out, stepper('more', ICON.plus, 1)]),
+      el('div', { class: 'num' }, [out]),
       el('div', { class: 'unit', text: q.cfg['unit_' + S.lang] || '' }),
       el('div', { class: 'ruler' }, [scroller])
     ]);
@@ -619,12 +643,12 @@
   }
 
   function introScreen() {
+    var brand = (BOOT.texts && BOOT.texts.brand) || 'Velmo Coaching';
+    if (N === 0) return el('section', { class: 'screen intro' }, [el('h1', { text: t('empty'), tabindex: '-1' })]);
     return el('section', { class: 'screen intro' }, [
-      el('div', { class: 'mark' }),
-      el('div', { class: 'head' }, [
-        el('h1', { text: N ? text('intro_title') : t('empty'), tabindex: '-1' }),
-        N ? el('p', { class: 'hint', text: text('intro_body') }) : null
-      ])
+      el('div', { class: 'brandmark', html: ICON.brand }),
+      el('h1', { text: brand, tabindex: '-1' }),
+      el('p', { class: 'hint', text: text('intro_body') })
     ]);
   }
 
@@ -660,7 +684,9 @@
       el('h1', { text: (first ? t('thanks').replace('{name}', first) : t('thanksPlain')) + ' ' + text('after_title'), tabindex: '-1' }),
       lines.length ? el('h2', { text: text('after_heading') }) : null,
       lines.length ? list : null,
-      text('after_close') ? el('p', { class: 'close', text: text('after_close') }) : null
+      text('after_close') ? el('p', { class: 'close', text: text('after_close') }) : null,
+      el('div', { class: 'signoff' }, [el('span', { class: 'm', html: ICON.brand }),
+        document.createTextNode((BOOT.texts && BOOT.texts.brand) || 'Velmo Coaching')])
     ]);
   }
 
@@ -763,6 +789,10 @@
       .catch(function () { done(false); });
   }
 
+  document.onkeydown = function (e) {
+    var tag = e.target && e.target.tagName;
+    if (e.key === 'Enter' && tag !== 'BUTTON' && tag !== 'TEXTAREA' && tag !== 'INPUT') forward();
+  };
   nextBtn.onclick = forward;
   backBtn.onclick = backward;
   skipBtn.onclick = (function () {
