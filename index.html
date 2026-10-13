@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Intake</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..110,400..800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F3F1EC;
+    --ink: #0C0C0D;
+    --muted: #5B5852;
+    --line: rgba(12, 12, 13, .14);
+    --fill: rgba(12, 12, 13, .06);
+    --fill-press: rgba(12, 12, 13, .11);
+    --tick: rgba(12, 12, 13, .34);
+    --accent: #0C0C0D;
+    --on-accent: #F3F1EC;
+    --error: #B3261E;
+    --ease: cubic-bezier(.16, 1, .3, 1);
+    --font: "Archivo", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0B0B0C; --ink: #F3F1EC; --muted: #A5A199; --line: rgba(243, 241, 236, .16);
+      --fill: rgba(243, 241, 236, .09); --fill-press: rgba(243, 241, 236, .16);
+      --tick: rgba(243, 241, 236, .4); --error: #FF8A7A; --accent: #F3F1EC; --on-accent: #0B0B0C;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0B0B0C; --ink: #F3F1EC; --muted: #A5A199; --line: rgba(243, 241, 236, .16);
+    --fill: rgba(243, 241, 236, .09); --fill-press: rgba(243, 241, 236, .16);
+    --tick: rgba(243, 241, 236, .4); --error: #FF8A7A; --accent: #F3F1EC; --on-accent: #0B0B0C;
+      color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 17px; line-height: 1.45;
+    font-variation-settings: "wdth" 100; -webkit-font-smoothing: antialiased; overflow: hidden;
+    overscroll-behavior: none;
+  }
+  ::selection { background: var(--accent); color: var(--on-accent); }
+  button, input { font: inherit; color: inherit; }
+  button { background: none; border: 0; padding: 0; cursor: pointer; touch-action: manipulation; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+  h1:focus { outline: none; }
+
+  #app { height: 100vh; height: 100dvh; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; }
+
+  /* Top bar: back, progress, language */
+  .bar { display: flex; align-items: center; gap: 4px; padding: 6px 8px 0; min-height: 56px; }
+  .icon-btn { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; flex: none; }
+  .icon-btn:active { background: var(--fill); }
+  .icon-btn svg { width: 22px; height: 22px; }
+  .icon-btn[hidden] { display: grid; visibility: hidden; }
+  .progress { flex: 1; height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; }
+  .progress i { display: block; height: 100%; width: 100%; background: var(--accent); transform-origin: left;
+    transform: scaleX(0); transition: transform .5s var(--ease); }
+  .progress[hidden] { display: block; visibility: hidden; }
+  .lang { min-width: 44px; height: 44px; padding: 0 12px; font-size: 14px; font-weight: 650; letter-spacing: .04em;
+    color: var(--muted); border-radius: 22px; flex: none; }
+  .lang:active { background: var(--fill); }
+
+  /* Stage: one screen at a time */
+  #stage { flex: 1; min-height: 0; position: relative; }
+  .screen { position: absolute; inset: 0; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column;
+    padding: 20px 24px 16px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .screen::-webkit-scrollbar { display: none; }
+  .screen.fwd { animation: in-fwd .34s var(--ease) both; }
+  .screen.back { animation: in-back .34s var(--ease) both; }
+  @keyframes in-fwd { from { opacity: 0; transform: translateX(28px); } }
+  @keyframes in-back { from { opacity: 0; transform: translateX(-28px); } }
+
+  h1 { margin: 0; font-size: 30px; line-height: 1.1; font-weight: 700; letter-spacing: -.02em; text-wrap: balance; }
+  .hint { margin: 10px 0 0; color: var(--muted); font-size: 16px; text-wrap: pretty; }
+  .control { margin-top: auto; padding-top: 28px; }
+
+  /* Intro */
+  .intro h1 { font-size: 40px; line-height: 1.02; letter-spacing: -.03em; font-variation-settings: "wdth" 92; }
+  .intro .hint { font-size: 18px; margin-top: 16px; max-width: 30ch; }
+  .intro .mark { margin-top: auto; width: 56px; height: 4px; background: var(--accent); border-radius: 2px; }
+  .intro .head { margin-top: 20px; }
+
+  /* Choices: full-width rows that fill when picked, a check at the trailing edge */
+  .list { display: grid; gap: 8px; }
+  .item { width: 100%; min-height: 56px; padding: 12px 18px; border-radius: 16px; background: var(--fill);
+    display: flex; align-items: center; justify-content: space-between; gap: 14px; text-align: left;
+    font-size: 17px; font-weight: 560; line-height: 1.25;
+    transition: background .18s ease, color .18s ease, transform .2s var(--ease); }
+  .item:active { transform: scale(.98); background: var(--fill-press); }
+  .item .lbl { display: block; }
+  .item small { display: block; font-size: 14px; font-weight: 450; opacity: .7; margin-top: 1px; }
+  .item .mark { flex: none; width: 22px; height: 22px; opacity: 0; transform: scale(.5);
+    transition: opacity .14s ease, transform .3s var(--ease); }
+  .item .mark svg { width: 22px; height: 22px; display: block; }
+  .item[aria-checked="true"], .item[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+  .item[aria-checked="true"] .mark, .item[aria-pressed="true"] .mark { opacity: 1; transform: none; }
+  .list.dense .item { min-height: 50px; padding: 10px 18px; }
+
+  /* Days: seven circles in a row; a week strip carries the date under the weekday */
+  .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin: 0 -4px; }
+  .day { aspect-ratio: 1; min-height: 44px; border-radius: 50%; background: var(--fill); display: grid;
+    place-items: center; font-size: 14px; font-weight: 620; line-height: 1;
+    transition: background .18s ease, color .18s ease, transform .2s var(--ease); }
+  .day:active { transform: scale(.92); background: var(--fill-press); }
+  .day[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+  .days.strip .day { aspect-ratio: auto; border-radius: 16px; min-height: 68px; padding: 10px 0; align-content: center;
+    gap: 6px; }
+  .days.strip .day b { font-size: 19px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .days.strip .day span { font-size: 12px; font-weight: 560; opacity: .7; }
+  .count { margin: 14px 0 0; text-align: center; font-size: 14px; font-weight: 560; color: var(--muted);
+    font-variant-numeric: tabular-nums; }
+  .list.cols { grid-template-columns: 1fr 1fr; }
+  .list.cols .item { min-height: 50px; padding: 10px 14px; font-size: 16px; gap: 8px; }
+  .list.cols .item .mark, .list.cols .item .mark svg { width: 18px; height: 18px; }
+
+  /* Several short questions on one screen */
+  .stack { display: grid; grid-template-columns: minmax(0, 1fr); gap: 26px; }
+  .part .list .item { min-height: 48px; padding: 8px 16px; }
+  .part .control { margin-top: 0; padding-top: 0; }
+  .part > .sub { margin: 0 0 10px; font-size: 15px; font-weight: 650; color: var(--muted); }
+  .part .num output { font-size: 46px; }
+  .part .num output.l4 { font-size: 42px; }
+  .part .num output.l5 { font-size: 36px; }
+  .part .step { width: 44px; height: 44px; }
+  .part .unit { display: none; }
+  .part .ruler { margin-top: 8px; height: 64px; }
+  .part .ruler::after { top: -2px; height: 40px; }
+  .part .ticks span { top: 42px; }
+  .more { margin-top: 22px; }
+  .more[hidden] { display: none; }
+  .more .sub { margin: 0 0 10px; font-size: 14px; font-weight: 650; color: var(--muted); }
+
+  /* Typed fields: the name, and optional notes */
+  .field { width: 100%; background: none; border: 0; border-bottom: 2px solid var(--line); border-radius: 0;
+    padding: 10px 0 12px; font-size: 28px; font-weight: 650; letter-spacing: -.01em; caret-color: var(--accent);
+    outline: none; transition: border-color .2s ease; }
+  .field:focus { border-bottom-color: var(--accent); }
+  .field::placeholder { color: var(--muted); opacity: .75; font-weight: 500; }
+  .field.note { font-size: 17px; font-weight: 500; margin-top: 18px; letter-spacing: 0; }
+
+  /* Number: big numeral, steppers, ruler */
+  .num { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .num output { flex: 1; text-align: center; font-weight: 750; letter-spacing: -.03em; line-height: 1;
+    font-variation-settings: "wdth" 84; font-variant-numeric: tabular-nums; font-size: 84px; }
+  .num output.l4 { font-size: 72px; }
+  .num output.l5 { font-size: 58px; }
+  .step { width: 52px; height: 52px; border-radius: 50%; background: var(--fill); display: grid; place-items: center;
+    flex: none; transition: transform .16s var(--ease), background .16s ease; }
+  .step:active { transform: scale(.92); background: var(--fill-press); }
+  .step svg { width: 22px; height: 22px; }
+  .unit { text-align: center; color: var(--muted); font-size: 16px; font-weight: 560; margin-top: 6px; }
+  .ruler { position: relative; margin: 26px -24px 0; height: 84px; }
+  .ruler::after { content: ""; position: absolute; left: 50%; top: -6px; width: 3px; height: 54px; margin-left: -1.5px;
+    background: var(--accent); border-radius: 2px; pointer-events: none; }
+  .scroller { height: 100%; overflow-x: scroll; overflow-y: hidden; display: flex; scrollbar-width: none;
+    -webkit-overflow-scrolling: touch; cursor: grab;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 22%, #000 78%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 22%, #000 78%, transparent); }
+  .scroller::-webkit-scrollbar { display: none; }
+  .scroller > .pad { flex: 0 0 50%; }
+  .ticks { flex: none; position: relative; height: 100%;
+    background-image: linear-gradient(to right, var(--ink) 0 2px, transparent 2px),
+      linear-gradient(to right, var(--tick) 0 1px, transparent 1px);
+    background-repeat: repeat-x; background-position: -1px 0, -.5px 0; }
+  .ticks span { position: absolute; top: 48px; transform: translateX(-50%); font-size: 13px; font-weight: 560;
+    color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+  /* Review */
+  .rows { margin: 22px 0 0; padding: 0; list-style: none; }
+  .rows li + li { border-top: 1px solid var(--line); }
+  .row { width: 100%; text-align: left; padding: 14px 0; display: grid; grid-template-columns: 1fr 20px; gap: 2px 12px;
+    align-items: center; }
+  .row .q { grid-column: 1; font-size: 13.5px; color: var(--muted); line-height: 1.3; }
+  .row .a { grid-column: 1; font-size: 17px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+  .row svg { grid-column: 2; grid-row: 1 / span 2; width: 18px; height: 18px; color: var(--muted); }
+  .row:active { opacity: .6; }
+
+  /* Sent */
+  .sent .tick { width: 56px; height: 56px; margin-top: 8px; }
+  .sent .tick path { stroke: var(--accent); stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round;
+    stroke-dasharray: 60; stroke-dashoffset: 60; animation: draw .7s .15s var(--ease) forwards; }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .sent h1 { margin-top: 20px; font-size: 34px; line-height: 1.05; font-variation-settings: "wdth" 92; }
+  .sent h2 { margin: 36px 0 0; font-size: 15px; font-weight: 700; color: var(--muted); }
+  .sent ol { margin: 6px 0 0; padding: 0; list-style: none; }
+  .sent ol li { padding: 14px 0; font-size: 17px; text-wrap: pretty; }
+  .sent ol li + li { border-top: 1px solid var(--line); }
+  .sent .close { margin: 22px 0 8px; color: var(--muted); font-size: 16px; }
+
+  /* Dock: the one main action, in thumb reach */
+  .dock { padding: 8px 24px max(16px, env(safe-area-inset-bottom)); display: grid; gap: 4px; }
+  .dock[hidden] { display: none; }
+  .cta { height: 58px; border-radius: 18px; background: var(--accent); color: var(--on-accent); font-size: 18px;
+    font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: transform .16s var(--ease), opacity .2s ease, background .2s ease, color .2s ease; }
+  .cta:active:not(:disabled) { transform: scale(.98); }
+  .cta:disabled { background: var(--fill); color: var(--muted); cursor: default; }
+  .cta .spin { width: 18px; height: 18px; border-radius: 50%; border: 2.5px solid currentColor;
+    border-right-color: transparent; animation: spin .7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .ghost { height: 46px; font-size: 16px; font-weight: 600; color: var(--muted); border-radius: 14px; }
+  .ghost:active { background: var(--fill); }
+  .ghost[hidden] { display: none; }
+  .error { margin: 0 0 8px; color: var(--error); font-size: 15px; font-weight: 560; text-wrap: pretty; }
+  .error[hidden] { display: none; }
+
+  @media (max-height: 620px) {
+    h1 { font-size: 26px; } .intro h1 { font-size: 34px; } .num output { font-size: 68px; }
+    .control { padding-top: 18px; } .ruler { margin-top: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .screen.fwd, .screen.back { animation: fade .2s ease both; }
+    @keyframes fade { from { opacity: 0; } }
+    .sent .tick path { animation: none; stroke-dashoffset: 0; }
+    .progress i, .step, .cta, .item, .item .mark, .day { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+  <header class="bar">
+    <button class="icon-btn" id="back" type="button" hidden>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+    </button>
+    <div class="progress" id="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" hidden><i></i></div>
+    <button class="lang" id="lang" type="button"></button>
+  </header>
+  <main id="stage"></main>
+  <footer class="dock" id="dock">
+    <p class="error" id="error" role="alert" hidden></p>
+    <button class="ghost" id="skip" type="button" hidden></button>
+    <button class="cta" id="next" type="button"></button>
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  var FALLBACK = {"code":"","questions":[{"id":"age","type":"number","tr":"Kaç yaşındasın?","en":"How old are you?","hintTr":"","hintEn":"","options":"","settings":"min=14; max=80; step=1; start=30; unit_tr=yaş; unit_en=years; screen=body; screen_tr=Yaşın, boyun, kilon; screen_en=Your age, height and weight; short_tr=Yaş; short_en=Age"},{"id":"height","type":"number","tr":"Boyun kaç?","en":"How tall are you?","hintTr":"","hintEn":"","options":"","settings":"min=140; max=215; step=1; start=172; unit_tr=cm; unit_en=cm; screen=body; short_tr=Boy · cm; short_en=Height · cm"},{"id":"weight","type":"number","tr":"Şu anki kilon?","en":"Your current weight?","hintTr":"","hintEn":"","options":"","settings":"min=40; max=180; step=0.5; start=75; unit_tr=kg; unit_en=kg; screen=body; short_tr=Kilo · kg; short_en=Weight · kg"},{"id":"steps","type":"number","tr":"Günde ortalama kaç adım atıyorsun?","en":"How many steps do you average a day?","hintTr":"Telefonundaki Sağlık uygulamasından bakabilirsin.","hintEn":"You can check the Health app on your phone.","options":"","settings":"min=0; max=25000; step=500; start=6000; unit_tr=adım; unit_en=steps; skip=yes"},{"id":"foods","type":"multi","tr":"Bunlardan hangilerini yersin?","en":"Which of these do you eat?","hintTr":"Yediklerinin hepsine dokun.","hintEn":"Tap everything you eat.","options":"chicken | Tavuk | Chicken\nbeef | Kırmızı et | Red meat\nfish | Balık | Fish\negg | Yumurta | Eggs\nyoghurt | Yoğurt | Yoghurt\ncheese | Peynir | Cheese\nlegumes | Baklagil | Beans, lentils\nrice | Pirinç | Rice\nbulgur | Bulgur | Bulgur\npasta | Makarna | Pasta\npotato | Patates | Potatoes\nbread | Ekmek | Bread\noats | Yulaf | Oats\nfruit | Meyve | Fruit","settings":"min=1; cols=2"},{"id":"health","type":"yesno","tr":"Sakatlığın ya da sağlık sorunun var mı?","en":"Any injury or health issue?","hintTr":"","hintEn":"","options":"back | Bel | Lower back\nknee | Diz | Knee\nshoulder | Omuz | Shoulder\nneck | Boyun | Neck\nhip | Kalça | Hip\nwrist | Bilek | Wrist\nheart_bp | Kalp / tansiyon | Heart / blood pressure\nother | Diğer | Other","settings":"note=yes"},{"id":"train_days","type":"multi","tr":"Haftada dört gün çalışacağız. Hangi günler sana uyar?","en":"We’ll train four days a week. Which days suit you?","hintTr":"En az dört gün seç.","hintEn":"Pick at least four.","options":"mon | Pazartesi | Monday | Pzt | Mon\ntue | Salı | Tuesday | Sal | Tue\nwed | Çarşamba | Wednesday | Çar | Wed\nthu | Perşembe | Thursday | Per | Thu\nfri | Cuma | Friday | Cum | Fri\nsat | Cumartesi | Saturday | Cmt | Sat\nsun | Pazar | Sunday | Paz | Sun","settings":"min=4; look=days; screen=train; screen_tr=Hangi günler ve saatler sana uyar?; screen_en=Which days and times suit you?; short_tr=Haftada dört gün çalışacağız · en az dört gün seç; short_en=We train four days a week · pick at least four"},{"id":"train_time","type":"multi","tr":"Günün hangi saatleri uygun?","en":"What time of day works?","hintTr":"Birden fazla seçebilirsin.","hintEn":"You can pick more than one.","options":"morning | Sabah · 06–10 | Morning · 06–10\nmidday | Öğle · 10–14 | Midday · 10–14\nafternoon | Öğleden sonra · 14–18 | Afternoon · 14–18\nevening | Akşam · 18–22 | Evening · 18–22","settings":"min=1; screen=train; short_tr=Saat; short_en=Time of day"}],"texts":{"intro":"no","review":"no","intro_title_tr":"Selam, tanıştığımıza sevindim.","intro_body_tr":"Programını hazırlamak için birkaç kısa sorum var. Bir dakikanı alır.","intro_title_en":"Hi, good to meet you.","intro_body_en":"A few quick questions so I can build your program. It takes about a minute.","after_title_tr":"Bilgilerin bana ulaştı.","after_title_en":"I’ve got your answers.","after_heading_tr":"İlk seanstan önce","after_heading_en":"Before the first session","after_tr":"Antrenmandan 3-4 saat önce mutlaka bir öğün ye: bir karbonhidrat (pirinç, patates, ekmek) ve bir protein (tavuk, et, yumurta).\nBir saatten az kaldıysa hızlı bir karbonhidrat al: muz, bal ya da beyaz ekmek.\nAntrenmandan önce kahveni iç.\nAntrenmanlara eşofman ve ceketle gelmeni istiyorum.","after_en":"Eat a meal 3-4 hours before training: a carb (rice, potatoes, bread) and a protein (chicken, meat, eggs).\nIf less than an hour is left, have a fast carb: a banana, honey or white bread.\nHave your coffee before training.\nCome to training in a tracksuit and a jacket.","after_close_tr":"İhtiyaç duyduğum diğer bilgileri seanslar sırasında birlikte netleştiririz.","after_close_en":"Anything else I need, we’ll sort out together during the sessions."}};
+  /** The sheet's script: it hands out the questions and takes the answers. Asked without any Google sign-in. */
+  var API = 'https://script.google.com/macros/s/AKfycbxm3voEUyRaGcK0VkKzgsUQj-dTcpO_DFjN-UUxutY2-3jxr33s9eNnsFYL2DvyeHggkw/exec';
+  var query = {};
+  try { location.search.replace(/[?&]([^=&]+)=([^&]*)/g, function (_, k, v) { query[k] = decodeURIComponent(v); }); } catch (e) {}
+  if (query.theme === 'dark' || query.theme === 'light') document.documentElement.setAttribute('data-theme', query.theme);
+  var touched = false;   // the person has answered something: the questions are not swapped under them
+
+  function start(BOOT) {
+  var UI = {
+    tr: { start: 'Başlayalım', next: 'Devam', done: 'Tamam', back: 'Geri', reviewTitle: 'Son bir kontrol',
+      reviewHint: 'Değiştirmek istediğine dokun.', send: 'Bilgileri yolla', sending: 'Yollanıyor…',
+      retry: 'Tekrar dene', fail: 'Gönderilemedi. Cevapların duruyor; bağlantını kontrol edip tekrar dene.',
+      yes: 'Evet', no: 'Hayır', skip: 'Bilmiyorum', note: 'Eklemek istediğin bir şey (isteğe bağlı)',
+      which: 'Hangisi?', today: 'Bugün', tomorrow: 'Yarın', thanks: 'Teşekkürler {name}.', thanksPlain: 'Teşekkürler.',
+      less: 'Azalt', more: 'Artır', other: 'English', otherCode: 'EN', progress: 'İlerleme',
+      empty: 'Bu bağlantıda soru yok.', locale: 'tr-TR' },
+    en: { start: 'Let’s start', next: 'Continue', done: 'Done', back: 'Back', reviewTitle: 'One last check',
+      reviewHint: 'Tap anything you want to change.', send: 'Send my answers', sending: 'Sending…',
+      retry: 'Try again', fail: 'Couldn’t send. Your answers are still here; check your connection and try again.',
+      yes: 'Yes', no: 'No', skip: 'I don’t know', note: 'Anything to add (optional)',
+      which: 'Which one?', today: 'Today', tomorrow: 'Tomorrow', thanks: 'Thank you, {name}.', thanksPlain: 'Thank you.',
+      less: 'Less', more: 'More', other: 'Türkçe', otherCode: 'TR', progress: 'Progress',
+      empty: 'This link has no questions.', locale: 'en-GB' }
+  };
+  var ICON = {
+    minus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M5 12h14"/></svg>',
+    plus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+    chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>',
+    check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+    tick: '<svg class="tick" viewBox="0 0 56 56" aria-hidden="true"><path d="M10 29l13 13 23-27"/></svg>'
+  };
+
+  // The questions, parsed once from the sheet's rows.
+  var QUESTIONS = BOOT.questions.map(function (q) {
+    var cfg = {};
+    String(q.settings || '').split(';').forEach(function (pair) {
+      var at = pair.indexOf('=');
+      if (at > 0) cfg[pair.slice(0, at).trim()] = pair.slice(at + 1).trim();
+    });
+    var options = String(q.options || '').split('\n').map(function (line) {
+      var parts = line.split('|').map(function (p) { return p.trim(); });
+      return parts[0] ? { v: parts[0], tr: parts[1] || parts[0], en: parts[2] || parts[1] || parts[0],
+        shortTr: parts[3] || '', shortEn: parts[4] || parts[3] || '' } : null;
+    }).filter(Boolean);
+    return { id: q.id, type: q.type, tr: q.tr, en: q.en || q.tr, hintTr: q.hintTr || '', hintEn: q.hintEn || q.hintTr || '',
+      options: options, cfg: cfg };
+  });
+  // Questions next to each other with the same `screen` setting share one screen.
+  var SCREENS = [];
+  QUESTIONS.forEach(function (q) {
+    var last = SCREENS[SCREENS.length - 1];
+    if (q.cfg.screen && last && last[0].cfg.screen === q.cfg.screen) last.push(q);
+    else SCREENS.push([q]);
+  });
+  var N = SCREENS.length;
+  var WITH_INTRO = (BOOT.texts && BOOT.texts.intro) === 'yes' || N === 0;
+  var WITH_REVIEW = (BOOT.texts && BOOT.texts.review) === 'yes';
+  var FIRST = WITH_INTRO ? -1 : 0;
+  var FINAL = WITH_REVIEW ? N : N - 1;
+  var STORE = 'intake:' + (BOOT.code || 'default');
+
+  var S = { lang: query.lang === 'en' ? 'en' : 'tr', at: -1, answers: {}, toReview: false, sending: false,
+    failed: false, sent: false, ref: Math.random().toString(36).slice(2, 12) + Date.now().toString(36) };
+  try {
+    var saved = JSON.parse(localStorage.getItem(STORE) || 'null');
+    if (saved && saved.answers && !query.fresh) {
+      S.answers = saved.answers; S.ref = saved.ref || S.ref;
+      if (!query.lang && saved.lang) S.lang = saved.lang;
+      if (typeof saved.at === 'number') S.at = saved.at;
+    }
+  } catch (e) {}
+  S.at = Math.max(FIRST, Math.min(S.at, FINAL));
+  function save() {
+    touched = true;
+    try { localStorage.setItem(STORE, JSON.stringify({ answers: S.answers, lang: S.lang, at: S.at, ref: S.ref })); } catch (e) {}
+  }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var stage = $('stage'), nextBtn = $('next'), skipBtn = $('skip'), backBtn = $('back'), langBtn = $('lang'),
+    progress = $('progress'), errorBox = $('error'), dock = $('dock');
+  function t(key) { return UI[S.lang][key]; }
+  function text(key) { return (BOOT.texts && BOOT.texts[key + '_' + S.lang]) || (FALLBACK && FALLBACK.texts[key + '_' + S.lang]) || ''; }
+  function el(tag, props, kids) {
+    var node = document.createElement(tag);
+    Object.keys(props || {}).forEach(function (key) {
+      if (key === 'class') node.className = props[key];
+      else if (key === 'text') node.textContent = props[key];
+      else if (key === 'html') node.innerHTML = props[key];
+      else if (key.slice(0, 2) === 'on') node.addEventListener(key.slice(2), props[key]);
+      else node.setAttribute(key, props[key]);
+    });
+    (kids || []).forEach(function (kid) { if (kid) node.appendChild(kid); });
+    return node;
+  }
+  function label(option) { return option[S.lang]; }
+  function title(q) { return q[S.lang]; }
+  function hint(q) { return S.lang === 'tr' ? q.hintTr : q.hintEn; }
+  function answer(q) {
+    if (!S.answers[q.id]) {
+      S.answers[q.id] = q.type === 'number' ? { v: Number(q.cfg.start !== undefined ? q.cfg.start : q.cfg.min || 0), skipped: false }
+        : q.type === 'yesno' ? { yes: null, v: [], note: '' }
+        : q.type === 'text' || q.type === 'single' ? { v: '' } : { v: [], note: '' };
+    }
+    return S.answers[q.id];
+  }
+  function decimals(q) { var s = String(q.cfg.step || 1); return s.indexOf('.') === -1 ? 0 : s.length - s.indexOf('.') - 1; }
+  function shownNumber(q, value) {
+    var d = decimals(q);
+    return Number(value).toLocaleString(t('locale'), { minimumFractionDigits: d, maximumFractionDigits: d });
+  }
+  function dayList(q) {
+    var count = Math.max(1, Math.min(Number(q.cfg.days) || 7, 14)), out = [], now = new Date();
+    for (var i = 0; i < count; i++) {
+      var d = new Date(now.getFullYear(), now.getMonth(), now.getDate() + i);
+      var iso = d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2);
+      var day = d.toLocaleDateString(t('locale'), { weekday: 'long' });
+      var name = day.charAt(0).toLocaleUpperCase(t('locale')) + day.slice(1);
+      var when = d.toLocaleDateString(t('locale'), { day: 'numeric', month: 'long' });
+      out.push({ v: iso, main: i === 0 ? t('today') : i === 1 ? t('tomorrow') : name, sub: when,
+        short: d.toLocaleDateString(t('locale'), { weekday: 'short' }).replace('.', ''), date: String(d.getDate()),
+        full: name + ' ' + when });
+    }
+    return out;
+  }
+  function valid(q) {
+    var a = answer(q), min = Number(q.cfg.min) || 1;
+    if (q.type === 'text') return a.v.trim().length >= 2;
+    if (q.type === 'number') return true;
+    if (q.type === 'single') return a.v !== '';
+    if (q.type === 'yesno') return a.yes === false || (a.yes === true && (a.v.length > 0 || a.note.trim().length > 1));
+    return a.v.length >= min;
+  }
+  function picked(q, values) {
+    return q.options.filter(function (o) { return values.indexOf(o.v) !== -1; }).map(label).join(', ');
+  }
+  /** The answer as the person reads it on the review screen. */
+  function shown(q) {
+    var a = answer(q);
+    if (q.type === 'text') return a.v.trim();
+    if (q.type === 'number') return a.skipped ? t('skip') : shownNumber(q, a.v) + ' ' + (q.cfg['unit_' + S.lang] || '');
+    if (q.type === 'single') return picked(q, [a.v]);
+    if (q.type === 'dates') {
+      return dayList(q).filter(function (d) { return a.v.indexOf(d.v) !== -1; })
+        .map(function (d) { return d.main; }).join(', ') || a.v.join(', ');
+    }
+    var parts = [picked(q, a.v), a.note.trim()].filter(String).join('. ');
+    if (q.type === 'yesno') return a.yes ? t('yes') + (parts ? ': ' + parts : '') : t('no');
+    return parts;
+  }
+  /** The answer as it is written to the sheet: stable values, not the screen's words. */
+  function cell(q) {
+    var a = answer(q);
+    if (q.type === 'text') return a.v.trim();
+    if (q.type === 'number') return a.skipped ? '' : String(a.v);
+    if (q.type === 'single') return a.v;
+    if (q.type === 'dates') return a.v.slice().sort().join(', ');
+    var parts = [a.v.join(', '), a.note.trim()].filter(String).join('; ');
+    if (q.type === 'yesno') return a.yes ? 'yes' + (parts ? ': ' + parts : '') : 'no';
+    return parts;
+  }
+
+  // MARK: Screens
+
+  /** A list of choices: full-width rows; the picked ones fill and show a check. */
+  function listControl(q, options, multi, values, onPick) {
+    var list = el('div', { class: 'list' + (q.cfg.cols === '2' ? ' cols' : options.length > 6 ? ' dense' : ''), role: multi ? 'group' : 'radiogroup',
+      'aria-label': title(q) });
+    var items = [];
+    var state = multi ? 'aria-pressed' : 'aria-checked';
+    function sync() {
+      var now = values();
+      items.forEach(function (item) { item.node.setAttribute(state, String(now.indexOf(item.v) !== -1)); });
+    }
+    options.forEach(function (option) {
+      var words = el('span', { class: 'lbl' }, [document.createTextNode(option.main || label(option))]);
+      if (option.sub) words.appendChild(el('small', { text: option.sub }));
+      var props = { class: 'item', type: 'button', onclick: function () { onPick(option.v); sync(); refreshDock(); } };
+      if (!multi) props.role = 'radio';
+      var node = el('button', props, [words, el('span', { class: 'mark', 'aria-hidden': 'true', html: ICON.check })]);
+      items.push({ v: option.v, node: node });
+      list.appendChild(node);
+    });
+    sync();
+    return list;
+  }
+  /** Seven circles in a row (weekdays), or a week strip with the date (the days ahead). Pick several. */
+  function daysControl(q, days, values, onPick, min) {
+    var strip = !!days[0].date;
+    var row = el('div', { class: 'days' + (strip ? ' strip' : ''), role: 'group', 'aria-label': title(q) });
+    var count = el('p', { class: 'count', 'aria-live': 'polite' });
+    var nodes = [];
+    function sync() {
+      var now = values();
+      nodes.forEach(function (n) { n.node.setAttribute('aria-pressed', String(now.indexOf(n.v) !== -1)); });
+      count.textContent = min > 1 ? now.length + ' / ' + min : '';
+    }
+    days.forEach(function (day) {
+      var node = el('button', { class: 'day', type: 'button', 'aria-label': day.full,
+        onclick: function () { onPick(day.v); sync(); refreshDock(); } },
+        strip ? [el('span', { text: day.short }), el('b', { text: day.date })] : [document.createTextNode(day.short)]);
+      nodes.push({ v: day.v, node: node });
+      row.appendChild(node);
+    });
+    sync();
+    return el('div', {}, [row, min > 1 ? count : null]);
+  }
+  function toggle(list, value) {
+    var at = list.indexOf(value);
+    if (at === -1) list.push(value); else list.splice(at, 1);
+  }
+  function noteField(a) {
+    return el('input', { class: 'field note', type: 'text', maxlength: '160', placeholder: t('note'), 'aria-label': t('note'),
+      value: a.note, autocomplete: 'off', enterkeyhint: 'done',
+      oninput: function (e) { a.note = e.target.value; save(); refreshDock(); } });
+  }
+
+  function numberControl(q, a) {
+    var min = Number(q.cfg.min) || 0, max = Number(q.cfg.max) || 100, step = Number(q.cfg.step) || 1, GAP = 10;
+    var count = Math.round((max - min) / step);
+    var major = count > 150 ? 20 : count > 70 ? 10 : 5;
+    var out = el('output', { 'aria-live': 'off' });
+    var ticks = el('div', { class: 'ticks' });
+    ticks.style.width = (count * GAP + 2) + 'px';
+    // Long ticks and their numbers sit on round values (15, 20, 25), wherever the range starts.
+    var every = major * step;
+    var firstMajor = Math.round((Math.ceil(min / every - 1e-9) * every - min) / step);
+    ticks.style.backgroundSize = (major * GAP) + 'px 38px, ' + GAP + 'px 22px';
+    ticks.style.backgroundPosition = (firstMajor * GAP - 1) + 'px 0, -.5px 0';
+    for (var k = firstMajor; k <= count; k += major) {
+      var mark = el('span', { text: Number(min + k * step).toLocaleString(t('locale'), { maximumFractionDigits: decimals(q) }) });
+      mark.style.left = (k * GAP) + 'px';
+      ticks.appendChild(mark);
+    }
+    var scroller = el('div', { class: 'scroller', tabindex: '0', role: 'slider', 'aria-label': title(q),
+      'aria-valuemin': String(min), 'aria-valuemax': String(max) },
+      [el('div', { class: 'pad' }), ticks, el('div', { class: 'pad' })]);
+    var settle = null, programmatic = false;
+    function indexOf(value) { return Math.max(0, Math.min(count, Math.round((value - min) / step))); }
+    function paint() {
+      var words = shownNumber(q, a.v);
+      out.textContent = words;
+      out.className = words.length >= 5 ? 'l5' : words.length === 4 ? 'l4' : '';
+      scroller.setAttribute('aria-valuenow', String(a.v));
+      scroller.setAttribute('aria-valuetext', words + ' ' + (q.cfg['unit_' + S.lang] || ''));
+    }
+    function set(index, smooth) {
+      index = Math.max(0, Math.min(count, index));
+      a.v = Number((min + index * step).toFixed(decimals(q)));
+      a.skipped = false;
+      paint(); save();
+      programmatic = true;
+      scroller.scrollTo({ left: index * GAP, behavior: smooth ? 'smooth' : 'auto' });
+      clearTimeout(settle);
+      settle = setTimeout(function () { programmatic = false; }, 360);
+    }
+    scroller.addEventListener('scroll', function () {
+      if (programmatic) return;
+      var index = Math.max(0, Math.min(count, Math.round(scroller.scrollLeft / GAP)));
+      var value = Number((min + index * step).toFixed(decimals(q)));
+      if (value !== a.v) { a.v = value; a.skipped = false; paint(); }
+      clearTimeout(settle);
+      settle = setTimeout(function () {
+        save();
+        if (Math.abs(scroller.scrollLeft - index * GAP) > .5) scroller.scrollTo({ left: index * GAP, behavior: 'smooth' });
+      }, 140);
+    }, { passive: true });
+    scroller.addEventListener('keydown', function (e) {
+      var move = { ArrowLeft: -1, ArrowDown: -1, ArrowRight: 1, ArrowUp: 1, PageDown: -10, PageUp: 10 }[e.key];
+      if (e.key === 'Home') { e.preventDefault(); set(0, true); }
+      else if (e.key === 'End') { e.preventDefault(); set(count, true); }
+      else if (move) { e.preventDefault(); set(indexOf(a.v) + move, true); }
+    });
+    /** A stepper: one step a tap; held down, it keeps stepping. */
+    function stepper(name, icon, delta) {
+      var button = el('button', { class: 'step', type: 'button', 'aria-label': t(name), html: icon });
+      var wait = null, run = null, held = false;
+      function stop() { clearTimeout(wait); clearInterval(run); wait = run = null; }
+      button.addEventListener('pointerdown', function () {
+        held = false;
+        stop();
+        wait = setTimeout(function () {
+          held = true;
+          run = setInterval(function () { set(indexOf(a.v) + delta, false); }, 70);
+        }, 380);
+      });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach(function (type) { button.addEventListener(type, stop); });
+      button.addEventListener('click', function () { if (!held) set(indexOf(a.v) + delta, true); held = false; });
+      return button;
+    }
+    paint();
+    requestAnimationFrame(function () { set(indexOf(a.v), false); });
+    return el('div', { class: 'control' }, [
+      el('div', { class: 'num' }, [stepper('less', ICON.minus, -1), out, stepper('more', ICON.plus, 1)]),
+      el('div', { class: 'unit', text: q.cfg['unit_' + S.lang] || '' }),
+      el('div', { class: 'ruler' }, [scroller])
+    ]);
+  }
+
+  /** A single tap answers the question: move on, unless this is the last screen (never send on one tap). */
+  function autoForward() {
+    if (S.at !== FINAL && SCREENS[S.at] && SCREENS[S.at].length === 1) setTimeout(forward, 300);
+  }
+
+  function controlFor(q) {
+    var a = answer(q);
+    if (q.type === 'text') {
+      var input = el('input', { class: 'field', type: 'text', maxlength: q.cfg.maxlen || '60', value: a.v,
+        placeholder: hint(q), 'aria-label': title(q), autocomplete: 'name', autocapitalize: 'words', enterkeyhint: 'next',
+        oninput: function (e) { a.v = e.target.value; save(); refreshDock(); },
+        onkeydown: function (e) { if (e.key === 'Enter') forward(); } });
+      setTimeout(function () { try { input.focus({ preventScroll: true }); } catch (e) {} }, 380);
+      return el('div', { class: 'control' }, [input]);
+    }
+    if (q.type === 'number') return numberControl(q, a);
+    if (q.type === 'single') {
+      return el('div', { class: 'control' }, [listControl(q, q.options, false, function () { return [a.v]; },
+        function (value) { a.v = value; save(); autoForward(); })]);
+    }
+    if (q.type === 'yesno') {
+      var more = el('div', { class: 'more' }, [el('p', { class: 'sub', text: t('which') })]);
+      if (q.options.length) {
+        more.appendChild(listControl(q, q.options, true, function () { return a.v; },
+          function (value) { toggle(a.v, value); save(); }));
+      }
+      if (q.cfg.note !== 'no') more.appendChild(noteField(a));
+      more.hidden = a.yes !== true;
+      var yn = [{ v: 'no', tr: UI.tr.no, en: UI.en.no }, { v: 'yes', tr: UI.tr.yes, en: UI.en.yes }];
+      return el('div', { class: 'control' }, [
+        listControl(q, yn, false, function () { return a.yes === null ? [] : [a.yes ? 'yes' : 'no']; }, function (value) {
+          a.yes = value === 'yes';
+          save();
+          more.hidden = !a.yes;
+          if (!a.yes) return autoForward();
+          requestAnimationFrame(function () {
+            try { more.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {}
+          });
+        }),
+        more
+      ]);
+    }
+    if (q.type === 'dates' || q.cfg.look === 'days') {
+      var days = q.type === 'dates' ? dayList(q) : q.options.map(function (o) {
+        return { v: o.v, short: (S.lang === 'tr' ? o.shortTr : o.shortEn) || label(o).slice(0, 3), full: label(o) };
+      });
+      return el('div', { class: 'control' }, [daysControl(q, days, function () { return a.v; },
+        function (value) { toggle(a.v, value); save(); }, Number(q.cfg.min) || 1)]);
+    }
+    var control = el('div', { class: 'control' }, [listControl(q, q.options, true, function () { return a.v; },
+      function (value) { toggle(a.v, value); save(); })]);
+    if (q.cfg.note === 'yes') control.appendChild(noteField(a));
+    return control;
+  }
+
+  /** One screen: a single question, or a few short ones under one heading. */
+  function questionScreen(group) {
+    var first = group[0];
+    if (group.length === 1) {
+      var kids = [el('h1', { text: title(first), tabindex: '-1' })];
+      if (hint(first) && first.type !== 'text') kids.push(el('p', { class: 'hint', text: hint(first) }));
+      var control = controlFor(first);
+      if (first.type === 'text') { control.style.marginTop = '28px'; control.style.paddingTop = '0'; }
+      kids.push(control);
+      return el('section', { class: 'screen' }, kids);
+    }
+    var stack = el('div', { class: 'control stack' });
+    group.forEach(function (q) {
+      stack.appendChild(el('div', { class: 'part' }, [
+        el('p', { class: 'sub', text: q.cfg['short_' + S.lang] || q.cfg.short_tr || title(q) }), controlFor(q)]));
+    });
+    return el('section', { class: 'screen' }, [
+      el('h1', { text: first.cfg['screen_' + S.lang] || first.cfg.screen_tr || title(first), tabindex: '-1' }), stack]);
+  }
+
+  function introScreen() {
+    return el('section', { class: 'screen intro' }, [
+      el('div', { class: 'mark' }),
+      el('div', { class: 'head' }, [
+        el('h1', { text: N ? text('intro_title') : t('empty'), tabindex: '-1' }),
+        N ? el('p', { class: 'hint', text: text('intro_body') }) : null
+      ])
+    ]);
+  }
+
+  function screenOf(q) {
+    for (var i = 0; i < SCREENS.length; i++) if (SCREENS[i].indexOf(q) !== -1) return i;
+    return 0;
+  }
+  function reviewScreen() {
+    var list = el('ul', { class: 'rows' });
+    QUESTIONS.forEach(function (q, index) {
+      list.appendChild(el('li', {}, [el('button', { class: 'row', type: 'button',
+        onclick: function () { if (!S.sending) { S.toReview = true; go(screenOf(q), 'back'); } } }, [
+        el('span', { class: 'q', text: title(q) }),
+        el('span', { class: 'a', text: shown(q) || '–' }),
+        el('span', { html: ICON.chevron })
+      ])]));
+    });
+    return el('section', { class: 'screen' }, [
+      el('h1', { text: t('reviewTitle'), tabindex: '-1' }),
+      el('p', { class: 'hint', text: t('reviewHint') }),
+      list
+    ]);
+  }
+
+  function sentScreen() {
+    var nameQ = QUESTIONS.filter(function (q) { return q.id === 'name'; })[0];
+    var first = nameQ ? answer(nameQ).v.trim().split(/\s+/)[0] : '';
+    var lines = text('after').split('\n').map(function (line) { return line.trim(); }).filter(String);
+    var list = el('ol', {});
+    lines.forEach(function (line) { list.appendChild(el('li', { text: line })); });
+    return el('section', { class: 'screen sent' }, [
+      el('div', { html: ICON.tick }),
+      el('h1', { text: (first ? t('thanks').replace('{name}', first) : t('thanksPlain')) + ' ' + text('after_title'), tabindex: '-1' }),
+      lines.length ? el('h2', { text: text('after_heading') }) : null,
+      lines.length ? list : null,
+      text('after_close') ? el('p', { class: 'close', text: text('after_close') }) : null
+    ]);
+  }
+
+  // MARK: Moving between screens
+
+  function refreshDock() {
+    var group = SCREENS[S.at];
+    var q = group && group.length === 1 ? group[0] : null;
+    dock.hidden = S.sent || N === 0;
+    backBtn.hidden = S.at <= FIRST || S.sent || S.sending;
+    backBtn.setAttribute('aria-label', t('back'));
+    progress.hidden = S.at === -1 || S.sent;
+    progress.setAttribute('aria-label', t('progress'));
+    var share = N ? Math.max(0, Math.min(1, (S.at + 1) / (FINAL + 1))) : 0;
+    progress.firstElementChild.style.transform = 'scaleX(' + share + ')';
+    progress.setAttribute('aria-valuenow', String(Math.round(share * 100)));
+    langBtn.textContent = t('otherCode');
+    langBtn.setAttribute('aria-label', t('other'));
+    langBtn.hidden = S.sending;
+    errorBox.hidden = !(S.failed && S.at === FINAL);
+    errorBox.textContent = t('fail');
+    skipBtn.hidden = !(q && q.type === 'number' && q.cfg.skip === 'yes');
+    skipBtn.textContent = t('skip');
+    nextBtn.textContent = '';
+    if (S.sending) nextBtn.appendChild(el('span', { class: 'spin' }));
+    nextBtn.appendChild(document.createTextNode(S.sending ? t('sending')
+      : S.at === -1 ? t('start') : S.at === FINAL ? (S.failed ? t('retry') : t('send')) : S.toReview ? t('done') : t('next')));
+    nextBtn.disabled = S.sending || (group ? !group.every(valid) : false);
+    document.documentElement.lang = S.lang;
+  }
+  function draw(direction) {
+    var screen = S.sent ? sentScreen() : S.at === -1 || N === 0 ? introScreen() : S.at === N ? reviewScreen() : questionScreen(SCREENS[S.at]);
+    if (direction) screen.classList.add(direction);
+    stage.textContent = '';
+    stage.appendChild(screen);
+    refreshDock();
+    return screen;
+  }
+  /** Redraws the same screen after a tap; `keepScroll` holds the place in a long list. */
+  function redraw(keepScroll) {
+    var top = keepScroll && stage.firstElementChild ? stage.firstElementChild.scrollTop : 0;
+    var screen = draw(null);
+    if (keepScroll) screen.scrollTop = top;
+  }
+  function go(index, direction) {
+    S.at = index;
+    S.failed = false;
+    save();
+    var screen = draw(direction);
+    var head = screen.querySelector('h1');
+    if (head && !screen.querySelector('input.field:not(.note)')) { try { head.focus({ preventScroll: true }); } catch (e) {} }
+  }
+  function forward() {
+    if (S.sending || S.sent || N === 0) return;
+    var group = SCREENS[S.at];
+    if (group && !group.every(valid)) return;
+    if (S.at === FINAL) return send();
+    if (S.toReview) { S.toReview = false; return go(N, 'fwd'); }
+    go(S.at + 1, 'fwd');
+  }
+  function backward() {
+    if (S.sending || S.sent || S.at <= FIRST) return;
+    if (S.toReview) { S.toReview = false; return go(N, 'fwd'); }
+    go(S.at - 1, 'back');
+  }
+
+  function send() {
+    var answers = {};
+    QUESTIONS.forEach(function (q) { answers[q.id] = cell(q); });
+    var payload = { code: BOOT.code || '', lang: S.lang, ref: S.ref, answers: answers };
+    var finished = false;
+    S.sending = true; S.failed = false;
+    refreshDock();
+    function done(ok) {
+      if (finished) return;
+      finished = true;
+      S.sending = false;
+      if (ok) {
+        S.sent = true;
+        try { localStorage.removeItem(STORE); } catch (e) {}
+        draw('fwd');
+        var head = stage.querySelector('h1');
+        if (head) { try { head.focus({ preventScroll: true }); } catch (e) {} }
+      } else {
+        S.failed = true;
+        refreshDock();
+      }
+    }
+    setTimeout(function () { done(false); }, 25000);
+    if (query.mock) {
+      // A preview: nothing is sent anywhere.
+      var fail = query.fail && !send.tried;
+      send.tried = true;
+      setTimeout(function () { done(!fail); }, 900);
+      return;
+    }
+    fetch(API, { method: 'POST', credentials: 'omit', body: JSON.stringify({ fn: 'submitIntake', payload: payload }) })
+      .then(function (response) { return response.json(); })
+      .then(function (result) { done(!!(result && result.ok)); })
+      .catch(function () { done(false); });
+  }
+
+  nextBtn.onclick = forward;
+  backBtn.onclick = backward;
+  skipBtn.onclick = (function () {
+    var q = SCREENS[S.at] && SCREENS[S.at][0];
+    if (!q) return;
+    answer(q).skipped = true;
+    save();
+    forward();
+  });
+  langBtn.onclick = function () {
+    S.lang = S.lang === 'tr' ? 'en' : 'tr';
+    try { localStorage.setItem(STORE, JSON.stringify({ answers: S.answers, lang: S.lang, at: S.at, ref: S.ref })); } catch (e) {}
+    redraw(true);
+  };
+  draw(null);
+  }
+
+  // The built-in default set opens at once. The sheet's live set (or a coded link's own set) replaces it when it
+  // arrives, unless the person has already started answering.
+  var code = /^[a-z0-9]{4,12}$/.test(query.c || '') ? query.c : '';
+  var started = false;
+  function begin(boot) { started = true; start(boot); }
+  if (!code && FALLBACK) begin(FALLBACK);
+  if (query.mock) { if (!started) begin(FALLBACK); return; }
+  var giveUp = setTimeout(function () { if (!started) begin(FALLBACK || { code: '', questions: [], texts: {} }); }, 7000);
+  fetch(API + '?api=boot&c=' + encodeURIComponent(code), { credentials: 'omit' })
+    .then(function (response) { return response.json(); })
+    .then(function (live) {
+      clearTimeout(giveUp);
+      if (!live || !live.questions) throw new Error('no questions');
+      var same = FALLBACK && JSON.stringify(live.questions) === JSON.stringify(FALLBACK.questions)
+        && JSON.stringify(live.texts) === JSON.stringify(FALLBACK.texts) && !live.code;
+      if (!started || (!touched && !same)) begin(live);
+    })
+    .catch(function () { clearTimeout(giveUp); if (!started) begin(FALLBACK || { code: '', questions: [], texts: {} }); });
+})();
+</script>
+</body>
+</html>
