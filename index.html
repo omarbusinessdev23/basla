@@ -5,9 +5,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Velmo Coaching</title>
-<meta name="description" content="Velmo Metodu: haftada birkaç saat sıkı antrenman, gerçek yemek ve seninle birlikte ilerleyen rakamlar.">
+<meta name="description" content="Antrenman ve beslenme, sana göre.">
 <meta property="og:title" content="Velmo Coaching">
-<meta property="og:description" content="Velmo Metodu: haftada birkaç saat sıkı antrenman, gerçek yemek ve seninle birlikte ilerleyen rakamlar.">
+<meta property="og:description" content="Antrenman ve beslenme, sana göre.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Velmo Coaching">
 <meta name="theme-color" content="#E7E2D9" media="(prefers-color-scheme: light)">
@@ -156,8 +156,8 @@
   .eyebrow { margin: 30px 0 0; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink);
     display: flex; align-items: center; gap: 10px; }
   .eyebrow::before { content: ""; width: 22px; height: 2px; border-radius: 1px; background: currentColor; }
-  .intro .hint { font-size: 18px; line-height: 1.42; margin-top: 12px; max-width: 33ch; }
-  .intro .meta { margin: 22px 0 0; font-size: 14px; color: var(--muted); }
+  .intro .hint { font-size: 22px; line-height: 1.3; margin: 22px 0 14px; max-width: 22ch; text-wrap: balance; }
+  .intro .eyebrow + .hint { margin-top: 12px; }
 
   /* Choices: full-width glass rows; the picked one turns solid, with a check at the trailing edge. */
   .list { display: grid; gap: 10px; }
@@ -327,7 +327,7 @@
 <script>
 (function () {
   'use strict';
-  var FALLBACK = {"code":"","questions":[{"id":"age","type":"number","tr":"Kaç yaşındasın?","en":"How old are you?","hintTr":"","hintEn":"","options":"","settings":"min=14; max=80; step=1; start=30; unit_tr=yaş; unit_en=years"},{"id":"height","type":"number","tr":"Boyun kaç?","en":"How tall are you?","hintTr":"","hintEn":"","options":"","settings":"min=140; max=215; step=1; start=172; unit_tr=cm; unit_en=cm"},{"id":"weight","type":"number","tr":"Şu anki kilon?","en":"Your current weight?","hintTr":"","hintEn":"","options":"","settings":"min=40; max=180; step=0.5; start=75; unit_tr=kg; unit_en=kg"},{"id":"steps","type":"number","tr":"Günde ortalama kaç adım atıyorsun?","en":"How many steps do you average a day?","hintTr":"Telefonundaki Sağlık uygulamasından bakabilirsin.","hintEn":"You can check the Health app on your phone.","options":"","settings":"min=0; max=25000; step=500; start=6000; unit_tr=adım; unit_en=steps; skip=yes"},{"id":"foods","type":"multi","tr":"Bunlardan hangilerini yersin?","en":"Which of these do you eat?","hintTr":"Yediklerinin hepsine dokun.","hintEn":"Tap everything you eat.","options":"chicken | Tavuk | Chicken\nbeef | Kırmızı et | Red meat\nfish | Balık | Fish\negg | Yumurta | Eggs\nyoghurt | Yoğurt | Yoghurt\ncheese | Peynir | Cheese\nlegumes | Baklagil | Beans, lentils\nrice | Pirinç | Rice\nbulgur | Bulgur | Bulgur\npasta | Makarna | Pasta\npotato | Patates | Potatoes\nbread | Ekmek | Bread\noats | Yulaf | Oats\nfruit | Meyve | Fruit","settings":"min=1; cols=2"},{"id":"meals","type":"single","tr":"Günde kaç öğün yersin?","en":"How many meals a day do you eat?","hintTr":"","hintEn":"","options":"2 | 2 | 2\n3 | 3 | 3\n4 | 4 | 4\n5 | 5 | 5\n6 | 6 ve üzeri | 6 or more","settings":""},{"id":"health","type":"yesno","tr":"Sakatlığın ya da sağlık sorunun var mı?","en":"Any injury or health issue?","hintTr":"","hintEn":"","options":"back | Bel | Lower back\nknee | Diz | Knee\nshoulder | Omuz | Shoulder\nneck | Boyun | Neck\nhip | Kalça | Hip\nwrist | Bilek | Wrist\nheart_bp | Kalp / tansiyon | Heart / blood pressure\nother | Diğer | Other","settings":"note=yes"},{"id":"train_days","type":"multi","tr":"Haftada dört gün çalışacağız. Hangi günler sana uyar?","en":"We’ll train four days a week. Which days suit you?","hintTr":"En az dört gün seç.","hintEn":"Pick at least four.","options":"mon | Pazartesi | Monday | Pzt | Mon\ntue | Salı | Tuesday | Sal | Tue\nwed | Çarşamba | Wednesday | Çar | Wed\nthu | Perşembe | Thursday | Per | Thu\nfri | Cuma | Friday | Cum | Fri\nsat | Cumartesi | Saturday | Cmt | Sat\nsun | Pazar | Sunday | Paz | Sun","settings":"min=4; look=days; rec=mon,tue,thu,fri"},{"id":"train_time","type":"multi","tr":"Günün hangi saatleri uygun?","en":"What time of day works?","hintTr":"Birden fazla seçebilirsin.","hintEn":"You can pick more than one.","options":"morning | Sabah · 06–10 | Morning · 06–10\nmidday | Öğle · 10–14 | Midday · 10–14\nafternoon | Öğleden sonra · 14–18 | Afternoon · 14–18\nevening | Akşam · 18–22 | Evening · 18–22","settings":"min=1"}],"texts":{"brand":"Velmo Coaching","intro":"yes","review":"no","welcome_eyebrow_tr":"Velmo Metodu","welcome_eyebrow_en":"The Velmo Method","welcome_body_tr":"Haftada birkaç saat sıkı antrenman, gerçek yemek ve bir şablona uymak yerine seninle birlikte ilerleyen rakamlar. Spor bilimine ve yayımlanmış kanıta dayanır; tahmine değil.","welcome_body_en":"A few hard hours a week, real food, and numbers that move with you instead of a template you have to fit. Built on sports science and published evidence, never guesswork.","welcome_cta_tr":"Planımı oluştur","welcome_cta_en":"Build my plan","sent_title_tr":"Tamamdır.","sent_title_en":"All set.","sent_body_tr":"Planını hazırlıyorum.","sent_body_en":"I’m building your plan.","before_heading_tr":"İlk seanstan önce","before_heading_en":"Before the first session","before_tr":"Antrenmandan 3-4 saat önce bir öğün ye: karbonhidrat ve protein.\nÖncesinde kahveni iç.\nYanına bir ceket al.","before_en":"Eat a meal 3-4 hours before training: carbs and protein.\nHave your coffee before.\nBring a jacket."}};
+  var FALLBACK = {"code":"","questions":[{"id":"age","type":"number","tr":"Kaç yaşındasın?","en":"How old are you?","hintTr":"","hintEn":"","options":"","settings":"min=14; max=80; step=1; start=30; unit_tr=yaş; unit_en=years"},{"id":"height","type":"number","tr":"Boyun kaç?","en":"How tall are you?","hintTr":"","hintEn":"","options":"","settings":"min=140; max=215; step=1; start=172; unit_tr=cm; unit_en=cm"},{"id":"weight","type":"number","tr":"Şu anki kilon?","en":"Your current weight?","hintTr":"","hintEn":"","options":"","settings":"min=40; max=180; step=0.5; start=75; unit_tr=kg; unit_en=kg"},{"id":"steps","type":"number","tr":"Günde ortalama kaç adım atıyorsun?","en":"How many steps do you average a day?","hintTr":"Telefonundaki Sağlık uygulamasından bakabilirsin.","hintEn":"You can check the Health app on your phone.","options":"","settings":"min=0; max=25000; step=500; start=6000; unit_tr=adım; unit_en=steps; skip=yes"},{"id":"foods","type":"multi","tr":"Bunlardan hangilerini yersin?","en":"Which of these do you eat?","hintTr":"Yediklerinin hepsine dokun.","hintEn":"Tap everything you eat.","options":"chicken | Tavuk | Chicken\nbeef | Kırmızı et | Red meat\nfish | Balık | Fish\negg | Yumurta | Eggs\nyoghurt | Yoğurt | Yoghurt\ncheese | Peynir | Cheese\nlegumes | Baklagil | Beans, lentils\nrice | Pirinç | Rice\nbulgur | Bulgur | Bulgur\npasta | Makarna | Pasta\npotato | Patates | Potatoes\nbread | Ekmek | Bread\noats | Yulaf | Oats\nfruit | Meyve | Fruit","settings":"min=1; cols=2"},{"id":"meals","type":"single","tr":"Günde kaç öğün yersin?","en":"How many meals a day do you eat?","hintTr":"","hintEn":"","options":"2 | 2 | 2\n3 | 3 | 3\n4 | 4 | 4\n5 | 5 | 5\n6 | 6 ve üzeri | 6 or more","settings":""},{"id":"health","type":"yesno","tr":"Sakatlığın ya da sağlık sorunun var mı?","en":"Any injury or health issue?","hintTr":"","hintEn":"","options":"back | Bel | Lower back\nknee | Diz | Knee\nshoulder | Omuz | Shoulder\nneck | Boyun | Neck\nhip | Kalça | Hip\nwrist | Bilek | Wrist\nheart_bp | Kalp / tansiyon | Heart / blood pressure\nother | Diğer | Other","settings":"note=yes"},{"id":"train_days","type":"multi","tr":"Haftada dört gün çalışacağız. Hangi günler sana uyar?","en":"We’ll train four days a week. Which days suit you?","hintTr":"En az dört gün seç.","hintEn":"Pick at least four.","options":"mon | Pazartesi | Monday | Pzt | Mon\ntue | Salı | Tuesday | Sal | Tue\nwed | Çarşamba | Wednesday | Çar | Wed\nthu | Perşembe | Thursday | Per | Thu\nfri | Cuma | Friday | Cum | Fri\nsat | Cumartesi | Saturday | Cmt | Sat\nsun | Pazar | Sunday | Paz | Sun","settings":"min=4; look=days; rec=mon,tue,thu,fri"},{"id":"train_time","type":"multi","tr":"Günün hangi saatleri uygun?","en":"What time of day works?","hintTr":"Birden fazla seçebilirsin.","hintEn":"You can pick more than one.","options":"morning | Sabah · 06–10 | Morning · 06–10\nmidday | Öğle · 10–14 | Midday · 10–14\nafternoon | Öğleden sonra · 14–18 | Afternoon · 14–18\nevening | Akşam · 18–22 | Evening · 18–22","settings":"min=1"}],"texts":{"brand":"Velmo Coaching","intro":"yes","review":"no","welcome_body_tr":"Antrenman ve beslenme, sana göre.","welcome_body_en":"Training and nutrition, built around you.","welcome_cta_tr":"Planımı oluştur","welcome_cta_en":"Build my plan","sent_title_tr":"Tamamdır.","sent_title_en":"All set.","sent_body_tr":"Planını hazırlıyorum.","sent_body_en":"I’m building your plan.","before_heading_tr":"İlk seanstan önce","before_heading_en":"Before the first session","before_tr":"Antrenmandan 3-4 saat önce bir öğün ye: karbonhidrat ve protein.\nÖncesinde kahveni iç.\nYanına bir ceket al.","before_en":"Eat a meal 3-4 hours before training: carbs and protein.\nHave your coffee before.\nBring a jacket."}};
   /** The sheet's script: it hands out the questions and takes the answers. Asked without any Google sign-in. */
   var API = 'https://script.google.com/macros/s/AKfycbxm3voEUyRaGcK0VkKzgsUQj-dTcpO_DFjN-UUxutY2-3jxr33s9eNnsFYL2DvyeHggkw/exec';
   var query = {};
@@ -367,16 +367,14 @@
       retry: 'Tekrar dene', fail: 'Gönderilemedi. Cevapların duruyor; bağlantını kontrol edip tekrar dene.',
       yes: 'Evet', no: 'Hayır', skip: 'Bilmiyorum',
       which: 'Hangisi?', today: 'Bugün', tomorrow: 'Yarın', thanks: 'Teşekkürler {name}.', thanksPlain: 'Teşekkürler.',
-      less: 'Azalt', more: 'Artır', rec: 'Önerilen günler',
-      meta: '{n} soru · 1 dakika', other: 'English', otherCode: 'EN', progress: 'İlerleme',
+      less: 'Azalt', more: 'Artır', rec: 'Önerilen günler', other: 'English', otherCode: 'EN', progress: 'İlerleme',
       empty: 'Bu bağlantıda soru yok.', locale: 'tr-TR' },
     en: { start: 'Build my plan', next: 'Continue', done: 'Done', back: 'Back', reviewTitle: 'One last check',
       reviewHint: 'Tap anything you want to change.', send: 'Send my answers', sending: 'Sending…',
       retry: 'Try again', fail: 'Couldn’t send. Your answers are still here; check your connection and try again.',
       yes: 'Yes', no: 'No', skip: 'I don’t know',
       which: 'Which one?', today: 'Today', tomorrow: 'Tomorrow', thanks: 'Thank you, {name}.', thanksPlain: 'Thank you.',
-      less: 'Less', more: 'More', rec: 'Recommended days',
-      meta: '{n} questions · 1 minute', other: 'Türkçe', otherCode: 'TR', progress: 'Progress',
+      less: 'Less', more: 'More', rec: 'Recommended days', other: 'Türkçe', otherCode: 'TR', progress: 'Progress',
       empty: 'This link has no questions.', locale: 'en-GB' }
   };
   var ICON = {
@@ -755,8 +753,7 @@
     return el('section', { class: 'screen intro' }, [
       mark,
       text('welcome_eyebrow') ? el('p', { class: 'eyebrow', text: text('welcome_eyebrow') }) : null,
-      el('p', { class: 'hint', text: text('welcome_body') }),
-      el('p', { class: 'meta', text: t('meta').replace('{n}', String(N)) })
+      el('p', { class: 'hint', text: text('welcome_body') })
     ]);
   }
 
