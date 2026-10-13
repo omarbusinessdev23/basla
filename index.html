@@ -35,6 +35,8 @@
     --accent-off: rgba(20, 22, 28, .28);
     --error: #A3261E;
     --rec: #1E8A47;
+    --seg: rgba(118, 118, 128, .16);
+    --seg-thumb: #FFFFFF;
     --quint: cubic-bezier(.22, 1, .36, 1);
     --std: cubic-bezier(.4, 0, .2, 1);
     --pop: cubic-bezier(.34, 1.4, .64, 1);
@@ -47,7 +49,7 @@
       --muted: rgba(255, 255, 255, .68); --line: rgba(255, 255, 255, .14); --row: rgba(255, 255, 255, .075);
       --row-edge: rgba(255, 255, 255, .16); --row-press: rgba(255, 255, 255, .14); --row-shadow: none;
       --track: rgba(255, 255, 255, .12); --tick: rgba(255, 255, 255, .34); --accent: #FFFFFF;
-      --on-accent: #14161C; --accent-off: rgba(255, 255, 255, .28); --error: #FF8A7A; --rec: #3DDC84; color-scheme: dark;
+      --on-accent: #14161C; --accent-off: rgba(255, 255, 255, .28); --error: #FF8A7A; --rec: #3DDC84; --seg: rgba(118, 118, 128, .28); --seg-thumb: #636366; color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
@@ -55,7 +57,7 @@
     --muted: rgba(255, 255, 255, .68); --line: rgba(255, 255, 255, .14); --row: rgba(255, 255, 255, .075);
     --row-edge: rgba(255, 255, 255, .16); --row-press: rgba(255, 255, 255, .14); --row-shadow: none;
     --track: rgba(255, 255, 255, .12); --tick: rgba(255, 255, 255, .34); --accent: #FFFFFF;
-    --on-accent: #14161C; --accent-off: rgba(255, 255, 255, .28); --error: #FF8A7A; --rec: #3DDC84; color-scheme: dark;
+    --on-accent: #14161C; --accent-off: rgba(255, 255, 255, .28); --error: #FF8A7A; --rec: #3DDC84; --seg: rgba(118, 118, 128, .28); --seg-thumb: #636366; color-scheme: dark;
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -94,11 +96,17 @@
   .progress i { display: block; height: 100%; width: 100%; background: var(--accent); border-radius: 2px;
     transform-origin: left; transform: scaleX(0); transition: transform .6s var(--quint); }
   .progress[hidden] { display: block; opacity: 0; }
-  .lang { height: 34px; padding: 0 13px 0 10px; display: flex; align-items: center; gap: 6px; font-size: 14px;
-    color: var(--ink); border-radius: 17px; flex: none; background: var(--row);
-    box-shadow: inset 0 0 0 1px var(--row-edge); transition: transform .12s var(--quint), opacity .2s ease; }
-  .lang svg { width: 16px; height: 16px; opacity: .7; }
-  .lang:active { transform: scale(.95); transition-duration: .06s; }
+  /* Language: the two-part sliding control from iOS. The thumb glides to the picked side with a little spring. */
+  .lang { position: relative; display: flex; flex: none; height: 34px; padding: 2px; border-radius: 17px;
+    background: var(--seg); transition: opacity .2s ease; }
+  .lang .thumb { position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc(50% - 2px); border-radius: 15px;
+    background: var(--seg-thumb); box-shadow: 0 3px 8px rgba(0, 0, 0, .12), 0 1px 1px rgba(0, 0, 0, .06), inset 0 0 0 .5px rgba(0, 0, 0, .04);
+    transition: transform .46s cubic-bezier(.3, 1.36, .44, 1), scale .18s var(--quint); }
+  .lang[data-on="en"] .thumb { transform: translateX(100%); }
+  .lang:active .thumb { scale: .93; }
+  .lang button { position: relative; z-index: 1; width: 44px; height: 30px; border-radius: 15px; font-size: 14px;
+    letter-spacing: .03em; color: var(--muted); transition: color .3s ease; }
+  .lang button[aria-checked="true"] { color: var(--ink); }
   .lang[hidden] { display: flex; opacity: 0; pointer-events: none; }
 
   /* Stage: one screen at a time. The question and its control sit together, a little below the middle,
@@ -114,17 +122,20 @@
   .screen.fwd .land { animation: land-fwd .46s var(--quint) backwards; animation-delay: var(--d, 0ms); }
   .screen.back .land { animation: land-back .46s var(--quint) backwards; animation-delay: var(--d, 0ms); }
   .screen.first .land { animation: land-up .6s var(--quint) backwards; animation-delay: var(--d, 0ms); }
-  .screen.swap { animation: fade-in .28s .08s ease backwards; }
+  .screen.swap { animation: swap-in .42s .1s var(--quint) backwards; }
   .screen.leave { pointer-events: none; }
   .screen.leave-fwd { animation: leave-fwd .2s var(--std) both; }
   .screen.leave-back { animation: leave-back .2s var(--std) both; }
-  .screen.leave-swap { animation: fade-out .12s ease both; }
+  .screen.leave-swap { animation: swap-out .16s ease both; }
   @keyframes land-fwd { from { opacity: 0; transform: translate3d(22px, 0, 0); } }
   @keyframes land-back { from { opacity: 0; transform: translate3d(-22px, 0, 0); } }
   @keyframes land-up { from { opacity: 0; transform: translate3d(0, 14px, 0); } }
   @keyframes leave-fwd { to { opacity: 0; transform: translate3d(-18px, 0, 0); } }
   @keyframes leave-back { to { opacity: 0; transform: translate3d(18px, 0, 0); } }
   @keyframes fade-in { from { opacity: 0; } }
+  @keyframes swap-in { from { opacity: 0; filter: blur(8px); transform: scale(.985); } }
+  @keyframes swap-out { to { opacity: 0; filter: blur(8px); } }
+  .cta .lbl.new, .ghost.new { animation: fade-in .32s ease backwards; }
   @keyframes fade-out { to { opacity: 0; } }
 
   h1 { margin: 0; font-size: 32px; line-height: 1.12; font-weight: 400; letter-spacing: -.005em; text-wrap: balance; }
@@ -298,6 +309,7 @@
     .control { padding-top: 18px; } .ruler { margin-top: 16px; } .item { min-height: 54px; }
   }
   @media (prefers-reduced-motion: reduce) {
+    .lang .thumb { transition: none; }
     .screen .land, .screen.swap, .wordmark .ch { animation: fade-in .2s ease both !important; animation-delay: 0s !important; }
     .wordmark .vm path { animation: none !important; }
     .screen.leave { animation: none !important; opacity: 0; }
@@ -313,7 +325,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
     <div class="lockup" id="lockup" hidden></div>
-    <button class="lang" id="lang" type="button"></button>
+    <div class="lang" id="lang" role="radiogroup"><i class="thumb" aria-hidden="true"></i><button type="button" role="radio" data-l="tr" lang="tr" aria-label="Türkçe">TR</button><button type="button" role="radio" data-l="en" lang="en" aria-label="English">EN</button></div>
     <div class="progress" id="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" hidden><i></i></div>
   </header>
   <main id="stage"></main>
@@ -367,19 +379,18 @@
       retry: 'Tekrar dene', fail: 'Gönderilemedi. Cevapların duruyor; bağlantını kontrol edip tekrar dene.',
       yes: 'Evet', no: 'Hayır', skip: 'Bilmiyorum',
       which: 'Hangisi?', today: 'Bugün', tomorrow: 'Yarın', thanks: 'Teşekkürler {name}.', thanksPlain: 'Teşekkürler.',
-      less: 'Azalt', more: 'Artır', rec: 'Önerilen günler', other: 'English', otherCode: 'EN', progress: 'İlerleme',
+      less: 'Azalt', more: 'Artır', rec: 'Önerilen günler', language: 'Dil', other: 'English', otherCode: 'EN', progress: 'İlerleme',
       empty: 'Bu bağlantıda soru yok.', locale: 'tr-TR' },
     en: { start: 'Build my plan', next: 'Continue', done: 'Done', back: 'Back', reviewTitle: 'One last check',
       reviewHint: 'Tap anything you want to change.', send: 'Send my answers', sending: 'Sending…',
       retry: 'Try again', fail: 'Couldn’t send. Your answers are still here; check your connection and try again.',
       yes: 'Yes', no: 'No', skip: 'I don’t know',
       which: 'Which one?', today: 'Today', tomorrow: 'Tomorrow', thanks: 'Thank you, {name}.', thanksPlain: 'Thank you.',
-      less: 'Less', more: 'More', rec: 'Recommended days', other: 'Türkçe', otherCode: 'TR', progress: 'Progress',
+      less: 'Less', more: 'More', rec: 'Recommended days', language: 'Language', other: 'Türkçe', otherCode: 'TR', progress: 'Progress',
       empty: 'This link has no questions.', locale: 'en-GB' }
   };
   var ICON = {
     brand: '<svg viewBox="170 140 710 672" aria-hidden="true"><path class="rear" d="M179.2 235.0 L394.2 802.7 L577.1 802.7 L362.1 235.0Z" opacity=".5"/><path class="front" d="M708.0 199.2 L429.8 802.7 L618.0 802.7 L863.2 270.8 L869.3 252.7 L871.1 233.5 L868.6 214.6 L862.0 196.6 L851.5 180.6 L837.8 167.3 L821.4 157.3 L803.3 151.3 L784.1 149.5 L765.2 152.0 L747.2 158.6 L731.2 169.1 L717.9 182.8Z"/></svg>',
-    globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9c-2.6-2.6-3.9-5.6-3.9-9S9.4 5.6 12 3z"/></svg>',
     chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>',
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     tick: '<svg class="tick" viewBox="0 0 56 56" aria-hidden="true"><path d="M10 29l13 13 23-27"/></svg>'
@@ -807,18 +818,23 @@
     var share = N ? Math.max(0, Math.min(1, (S.at + 1) / (FINAL + 1))) : 0;
     progress.firstElementChild.style.transform = 'scaleX(' + share + ')';
     progress.setAttribute('aria-valuenow', String(Math.round(share * 100)));
-    langBtn.innerHTML = ICON.globe;
-    langBtn.appendChild(document.createTextNode(t('other')));
-    langBtn.setAttribute('aria-label', t('other'));
+    langBtn.setAttribute('data-on', S.lang);
+    langBtn.setAttribute('aria-label', t('language'));
+    Array.prototype.forEach.call(langBtn.querySelectorAll('button'), function (button) {
+      button.setAttribute('aria-checked', String(button.getAttribute('data-l') === S.lang));
+    });
     langBtn.hidden = S.sending && !S.sent;
     errorBox.hidden = !(S.failed && S.at === FINAL);
     errorBox.textContent = t('fail');
     skipBtn.hidden = !(q && q.type === 'number' && q.cfg.skip === 'yes');
     skipBtn.textContent = t('skip');
+    var words = S.sending ? t('sending')
+      : S.at === -1 ? text('welcome_cta') || t('start') : S.at === FINAL ? (S.failed ? t('retry') : t('send')) : S.toReview ? t('done') : t('next');
+    var was = nextBtn.getAttribute('data-words');
     nextBtn.textContent = '';
     if (S.sending) nextBtn.appendChild(el('span', { class: 'spin' }));
-    nextBtn.appendChild(document.createTextNode(S.sending ? t('sending')
-      : S.at === -1 ? text('welcome_cta') || t('start') : S.at === FINAL ? (S.failed ? t('retry') : t('send')) : S.toReview ? t('done') : t('next')));
+    nextBtn.appendChild(el('span', { class: 'lbl' + (was && was !== words ? ' new' : ''), text: words }));
+    nextBtn.setAttribute('data-words', words);
     nextBtn.disabled = S.sending || (group ? !group.every(valid) : false);
     document.documentElement.lang = S.lang;
   }
@@ -945,13 +961,18 @@
     save();
     forward();
   });
-  langBtn.onclick = function () {
-    S.lang = S.lang === 'tr' ? 'en' : 'tr';
-    if (!S.sent || S.sending) {
-      try { localStorage.setItem(STORE, JSON.stringify({ answers: S.answers, lang: S.lang, at: S.at, ref: S.ref })); } catch (e) {}
-    }
-    redraw(true, 'swap');
-  };
+  Array.prototype.forEach.call(langBtn.querySelectorAll('button'), function (button) {
+    button.onclick = function () {
+      var to = button.getAttribute('data-l');
+      if (to === S.lang) return;
+      S.lang = to;
+      tick();
+      if (!S.sent || S.sending) {
+        try { localStorage.setItem(STORE, JSON.stringify({ answers: S.answers, lang: S.lang, at: S.at, ref: S.ref })); } catch (e) {}
+      }
+      redraw(true, 'swap');
+    };
+  });
   draw(opening ? 'first' : null);
   }
 
