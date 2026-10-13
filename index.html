@@ -36,7 +36,7 @@
     --error: #A3261E;
     --rec: #1E8A47;
     --seg: rgba(118, 118, 128, .16);
-    --seg-thumb: #FFFFFF;
+    --menu: rgba(250, 249, 247, .82);
     --quint: cubic-bezier(.22, 1, .36, 1);
     --std: cubic-bezier(.4, 0, .2, 1);
     --pop: cubic-bezier(.34, 1.4, .64, 1);
@@ -49,7 +49,7 @@
       --muted: rgba(255, 255, 255, .68); --line: rgba(255, 255, 255, .14); --row: rgba(255, 255, 255, .075);
       --row-edge: rgba(255, 255, 255, .16); --row-press: rgba(255, 255, 255, .14); --row-shadow: none;
       --track: rgba(255, 255, 255, .12); --tick: rgba(255, 255, 255, .34); --accent: #FFFFFF;
-      --on-accent: #14161C; --accent-off: rgba(255, 255, 255, .28); --error: #FF8A7A; --rec: #3DDC84; --seg: rgba(118, 118, 128, .28); --seg-thumb: #636366; color-scheme: dark;
+      --on-accent: #14161C; --accent-off: rgba(255, 255, 255, .28); --error: #FF8A7A; --rec: #3DDC84; --seg: rgba(118, 118, 128, .28); --menu: rgba(44, 44, 48, .82); color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
@@ -57,9 +57,17 @@
     --muted: rgba(255, 255, 255, .68); --line: rgba(255, 255, 255, .14); --row: rgba(255, 255, 255, .075);
     --row-edge: rgba(255, 255, 255, .16); --row-press: rgba(255, 255, 255, .14); --row-shadow: none;
     --track: rgba(255, 255, 255, .12); --tick: rgba(255, 255, 255, .34); --accent: #FFFFFF;
-    --on-accent: #14161C; --accent-off: rgba(255, 255, 255, .28); --error: #FF8A7A; --rec: #3DDC84; --seg: rgba(118, 118, 128, .28); --seg-thumb: #636366; color-scheme: dark;
+    --on-accent: #14161C; --accent-off: rgba(255, 255, 255, .28); --error: #FF8A7A; --rec: #3DDC84; --seg: rgba(118, 118, 128, .28); --menu: rgba(44, 44, 48, .82); color-scheme: dark;
   }
 
+  :root[lang="ar"] { --font: "Cairo", "Cal Sans", system-ui, -apple-system, "Segoe UI", sans-serif; --dir: -1; }
+  :root[lang="ar"] body { letter-spacing: 0; font-weight: 600; line-height: 1.5; }
+  :root[lang="ar"] h1 { font-weight: 800; line-height: 1.25; letter-spacing: 0; }
+  :root[lang="ar"] .cta, :root[lang="ar"] .item { font-weight: 700; }
+  .wordmark, .lockup, .num output, .ticks, .lang-btn { font-family: "Cal Sans", system-ui, sans-serif; font-weight: 400; direction: ltr; }
+  [dir="rtl"] #back svg, [dir="rtl"] .row svg { transform: scaleX(-1); }
+  [dir="rtl"] .progress i { transform-origin: right; }
+  [dir="rtl"] .wordmark .l { justify-content: flex-end; }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   html, body { height: 100%; margin: 0; }
   body {
@@ -87,27 +95,42 @@
   .icon-btn:active { background: var(--track); transform: scale(.94); transition-duration: .06s; }
   .icon-btn svg { width: 22px; height: 22px; }
   .icon-btn[hidden] { display: grid; opacity: 0; pointer-events: none; width: 12px; }
-  .lockup { display: flex; align-items: center; gap: 8px; font-size: 18px; white-space: nowrap; min-width: 0;
+  .lockup { display: flex; align-items: baseline; gap: 0; font-size: 19px; white-space: nowrap; min-width: 0;
     overflow: hidden; transition: opacity .36s ease; }
-  .lockup svg { width: 24px; height: 22px; fill: currentColor; flex: none; }
+  .lockup svg { width: .78em; height: .74em; margin-inline-end: -.03em; fill: currentColor; flex: none; }
   .lockup[hidden] { display: flex; opacity: 0; }
   .progress { grid-column: 1 / -1; height: 4px; margin: 8px 12px 0; background: var(--track); border-radius: 2px;
     overflow: hidden; transition: opacity .3s ease; }
   .progress i { display: block; height: 100%; width: 100%; background: var(--accent); border-radius: 2px;
     transform-origin: left; transform: scaleX(0); transition: transform .6s var(--quint); }
   .progress[hidden] { display: block; opacity: 0; }
-  /* Language: the two-part sliding control from iOS. The thumb glides to the picked side with a little spring. */
-  .lang { position: relative; display: flex; flex: none; height: 34px; padding: 2px; border-radius: 17px;
-    background: var(--seg); transition: opacity .2s ease; }
-  .lang .thumb { position: absolute; top: 2px; bottom: 2px; left: 2px; width: calc(50% - 2px); border-radius: 15px;
-    background: var(--seg-thumb); box-shadow: 0 3px 8px rgba(0, 0, 0, .12), 0 1px 1px rgba(0, 0, 0, .06), inset 0 0 0 .5px rgba(0, 0, 0, .04);
-    transition: transform .46s cubic-bezier(.3, 1.36, .44, 1), scale .18s var(--quint); }
-  .lang[data-on="en"] .thumb { transform: translateX(100%); }
-  .lang:active .thumb { scale: .93; }
-  .lang button { position: relative; z-index: 1; width: 44px; height: 30px; border-radius: 15px; font-size: 14px;
-    letter-spacing: .03em; color: var(--muted); transition: color .3s ease; }
-  .lang button[aria-checked="true"] { color: var(--ink); }
-  .lang[hidden] { display: flex; opacity: 0; pointer-events: none; }
+  /* Language: an iOS pull-down menu. The button names the language; the menu grows out of it on frosted glass. */
+  .bar { position: relative; z-index: 3; }
+  .lang { position: relative; flex: none; transition: opacity .2s ease; }
+  .lang[hidden] { display: block; opacity: 0; pointer-events: none; }
+  .lang-btn { height: 34px; padding: 0 9px 0 10px; display: flex; align-items: center; gap: 5px; border-radius: 17px;
+    background: var(--seg); font-size: 14px; letter-spacing: .03em; direction: ltr;
+    transition: transform .14s var(--quint), background .2s ease; }
+  .lang-btn svg { width: 15px; height: 15px; opacity: .72; }
+  .lang-btn svg.ud { width: 9px; height: 14px; opacity: .5; }
+  .lang-btn:active, .lang-btn[aria-expanded="true"] { transform: scale(.95); }
+  .veil { position: fixed; inset: 0; z-index: 4; }
+  .veil[hidden] { display: none; }
+  .menu { position: absolute; z-index: 5; top: calc(100% + 8px); inset-inline-end: 0; width: 214px; padding: 0;
+    border-radius: 14px; overflow: hidden; background: var(--menu); -webkit-backdrop-filter: blur(30px) saturate(180%);
+    backdrop-filter: blur(30px) saturate(180%); box-shadow: 0 0 0 .5px rgba(0, 0, 0, .1), 0 18px 60px rgba(0, 0, 0, .24);
+    transform-origin: 100% 0; transform: scale(.3); opacity: 0; visibility: hidden; pointer-events: none;
+    transition: transform .2s var(--std), opacity .16s ease, visibility 0s .2s; }
+  [dir="rtl"] .menu { transform-origin: 0 0; }
+  .menu.open { transform: none; opacity: 1; visibility: visible; pointer-events: auto;
+    transition: transform .42s cubic-bezier(.24, 1.24, .36, 1), opacity .18s ease, visibility 0s; }
+  .menu button { width: 100%; height: 46px; padding: 0 16px; display: flex; align-items: center; justify-content: space-between;
+    font-family: -apple-system, system-ui, "Segoe UI", Roboto, sans-serif; font-size: 17px; letter-spacing: 0;
+    text-align: start; transition: background .12s ease; }
+  .menu button + button { box-shadow: inset 0 .5px 0 var(--line); }
+  .menu button:active { background: var(--track); }
+  .menu button svg { width: 17px; height: 17px; opacity: 0; }
+  .menu button[aria-checked="true"] svg { opacity: 1; }
 
   /* Stage: one screen at a time. The question and its control sit together, a little below the middle,
      where the thumb is; a screen taller than the stage scrolls from its top instead. */
@@ -127,11 +150,11 @@
   .screen.leave-fwd { animation: leave-fwd .2s var(--std) both; }
   .screen.leave-back { animation: leave-back .2s var(--std) both; }
   .screen.leave-swap { animation: swap-out .16s ease both; }
-  @keyframes land-fwd { from { opacity: 0; transform: translate3d(22px, 0, 0); } }
-  @keyframes land-back { from { opacity: 0; transform: translate3d(-22px, 0, 0); } }
+  @keyframes land-fwd { from { opacity: 0; transform: translate3d(calc(22px * var(--dir, 1)), 0, 0); } }
+  @keyframes land-back { from { opacity: 0; transform: translate3d(calc(-22px * var(--dir, 1)), 0, 0); } }
   @keyframes land-up { from { opacity: 0; transform: translate3d(0, 14px, 0); } }
-  @keyframes leave-fwd { to { opacity: 0; transform: translate3d(-18px, 0, 0); } }
-  @keyframes leave-back { to { opacity: 0; transform: translate3d(18px, 0, 0); } }
+  @keyframes leave-fwd { to { opacity: 0; transform: translate3d(calc(-18px * var(--dir, 1)), 0, 0); } }
+  @keyframes leave-back { to { opacity: 0; transform: translate3d(calc(18px * var(--dir, 1)), 0, 0); } }
   @keyframes fade-in { from { opacity: 0; } }
   @keyframes swap-in { from { opacity: 0; filter: blur(8px); transform: scale(.985); } }
   @keyframes swap-out { to { opacity: 0; filter: blur(8px); } }
@@ -146,9 +169,10 @@
   .intro::before { flex: 1 0 0px; }
   .intro::after { flex: 0 0 4px; }
   .wordmark { margin: 0; font-size: clamp(50px, 17.5vw, 80px); line-height: .98; letter-spacing: -.025em; font-weight: 400; }
-  .wordmark .l { display: flex; align-items: center; white-space: nowrap; }
+  .wordmark .l { display: flex; align-items: baseline; white-space: nowrap; }
   .wordmark .l + .l { color: var(--muted); }
-  .wordmark .vm { width: .86em; height: .8em; margin: 0 .12em 0 -.02em; flex: none; }
+  /* The mark is the V of Velmo: cap-high, on the baseline, the letters closing up to it. */
+  .wordmark .vm { width: .78em; height: .74em; margin: 0 -.035em 0 -.01em; flex: none; }
   .wordmark .vm svg { display: block; width: 100%; height: 100%; fill: var(--ink); overflow: visible; }
   .wordmark .vm path { transform-box: fill-box; transform-origin: 50% 100%; }
   .wordmark .ch { display: inline-block; }
@@ -174,7 +198,7 @@
   .list { display: grid; gap: 10px; }
   .item { width: 100%; min-height: 60px; padding: 12px 20px; border-radius: 20px; background: var(--row);
     box-shadow: inset 0 0 0 1px var(--row-edge), var(--row-shadow);
-    display: flex; align-items: center; justify-content: space-between; gap: 14px; text-align: left;
+    display: flex; align-items: center; justify-content: space-between; gap: 14px; text-align: start;
     font-size: 18px; line-height: 1.2;
     transition: background .22s ease, color .22s ease, box-shadow .22s ease, transform .12s var(--quint); }
   .item:active { transform: scale(.97); background: var(--row-press); transition-duration: .22s, .22s, .22s, .06s; }
@@ -246,7 +270,7 @@
   .num output.l4 { font-size: 76px; }
   .num output.l5 { font-size: 62px; }
   .unit { text-align: center; color: var(--muted); font-size: 17px; margin-top: 6px; }
-  .ruler { position: relative; margin: 26px -24px 0; height: 88px; }
+  .ruler { position: relative; margin: 26px -24px 0; height: 88px; direction: ltr; }
   .ruler::after { content: ""; position: absolute; left: 50%; top: -6px; width: 3px; height: 56px; margin-left: -1.5px;
     background: var(--accent); border-radius: 2px; pointer-events: none; }
   .scroller { height: 100%; overflow-x: scroll; overflow-y: hidden; display: flex; scrollbar-width: none;
@@ -265,7 +289,7 @@
   /* Review */
   .rows { margin: 22px 0 0; padding: 0; list-style: none; }
   .rows li + li { border-top: 1px solid var(--line); }
-  .row { width: 100%; text-align: left; padding: 14px 0; display: grid; grid-template-columns: 1fr 20px; gap: 2px 12px;
+  .row { width: 100%; text-align: start; padding: 14px 0; display: grid; grid-template-columns: 1fr 20px; gap: 2px 12px;
     align-items: center; }
   .row .q { grid-column: 1; font-size: 14px; color: var(--muted); line-height: 1.3; }
   .row .a { grid-column: 1; font-size: 17px; line-height: 1.3; overflow-wrap: anywhere; }
@@ -281,9 +305,12 @@
   .sent .hint { font-size: 19px; margin-top: 8px; }
   .sent h2 { margin: 34px 0 10px; font-size: 13px; font-weight: 400; letter-spacing: .14em; text-transform: uppercase;
     color: var(--muted); }
-  .sent ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
-  .sent ol li { padding: 15px 18px; font-size: 17px; line-height: 1.3; text-wrap: pretty; border-radius: 18px;
-    background: var(--row); box-shadow: inset 0 0 0 1px var(--row-edge), var(--row-shadow); }
+  .sent ol { margin: 0; padding: 0; list-style: none; }
+  .sent ol li { position: relative; padding: 13px 0; padding-inline-start: 20px; font-size: 17px; line-height: 1.35;
+    text-wrap: pretty; }
+  .sent ol li::before { content: ""; position: absolute; inset-inline-start: 2px; top: 22px; width: 6px; height: 6px;
+    border-radius: 50%; background: var(--muted); }
+  .sent ol li + li { border-top: 1px solid var(--line); }
 
   /* Dock: the one main action, in thumb reach */
   .dock { padding: 10px 18px max(14px, env(safe-area-inset-bottom)); display: grid; gap: 4px;
@@ -309,7 +336,7 @@
     .control { padding-top: 18px; } .ruler { margin-top: 16px; } .item { min-height: 54px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .lang .thumb { transition: none; }
+    .menu, .menu.open { transition: opacity .15s ease, visibility 0s; transform: none; }
     .screen .land, .screen.swap, .wordmark .ch { animation: fade-in .2s ease both !important; animation-delay: 0s !important; }
     .wordmark .vm path { animation: none !important; }
     .screen.leave { animation: none !important; opacity: 0; }
@@ -325,7 +352,15 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
     <div class="lockup" id="lockup" hidden></div>
-    <div class="lang" id="lang" role="radiogroup"><i class="thumb" aria-hidden="true"></i><button type="button" role="radio" data-l="tr" lang="tr" aria-label="Türkçe">TR</button><button type="button" role="radio" data-l="en" lang="en" aria-label="English">EN</button></div>
+    <div class="lang" id="lang">
+      <button class="lang-btn" id="langBtn" type="button" aria-haspopup="menu" aria-expanded="false"></button>
+      <div class="veil" id="veil" hidden></div>
+      <div class="menu" id="langMenu" role="menu">
+        <button type="button" role="menuitemradio" data-l="tr" lang="tr">Türkçe</button>
+        <button type="button" role="menuitemradio" data-l="en" lang="en">English</button>
+        <button type="button" role="menuitemradio" data-l="ar" lang="ar" dir="rtl">العربية</button>
+      </div>
+    </div>
     <div class="progress" id="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" hidden><i></i></div>
   </header>
   <main id="stage"></main>
@@ -339,7 +374,7 @@
 <script>
 (function () {
   'use strict';
-  var FALLBACK = {"code":"","questions":[{"id":"age","type":"number","tr":"Kaç yaşındasın?","en":"How old are you?","hintTr":"","hintEn":"","options":"","settings":"min=14; max=80; step=1; start=30; unit_tr=yaş; unit_en=years"},{"id":"height","type":"number","tr":"Boyun kaç?","en":"How tall are you?","hintTr":"","hintEn":"","options":"","settings":"min=140; max=215; step=1; start=172; unit_tr=cm; unit_en=cm"},{"id":"weight","type":"number","tr":"Şu anki kilon?","en":"Your current weight?","hintTr":"","hintEn":"","options":"","settings":"min=40; max=180; step=0.5; start=75; unit_tr=kg; unit_en=kg"},{"id":"steps","type":"number","tr":"Günde ortalama kaç adım atıyorsun?","en":"How many steps do you average a day?","hintTr":"Telefonundaki Sağlık uygulamasından bakabilirsin.","hintEn":"You can check the Health app on your phone.","options":"","settings":"min=0; max=25000; step=500; start=6000; unit_tr=adım; unit_en=steps; skip=yes"},{"id":"foods","type":"multi","tr":"Bunlardan hangilerini yersin?","en":"Which of these do you eat?","hintTr":"Yediklerinin hepsine dokun.","hintEn":"Tap everything you eat.","options":"chicken | Tavuk | Chicken\nbeef | Kırmızı et | Red meat\nfish | Balık | Fish\negg | Yumurta | Eggs\nyoghurt | Yoğurt | Yoghurt\ncheese | Peynir | Cheese\nlegumes | Baklagil | Beans, lentils\nrice | Pirinç | Rice\nbulgur | Bulgur | Bulgur\npasta | Makarna | Pasta\npotato | Patates | Potatoes\nbread | Ekmek | Bread\noats | Yulaf | Oats\nfruit | Meyve | Fruit","settings":"min=1; cols=2"},{"id":"meals","type":"single","tr":"Günde kaç öğün yersin?","en":"How many meals a day do you eat?","hintTr":"","hintEn":"","options":"2 | 2 | 2\n3 | 3 | 3\n4 | 4 | 4\n5 | 5 | 5\n6 | 6 ve üzeri | 6 or more","settings":""},{"id":"health","type":"yesno","tr":"Sakatlığın ya da sağlık sorunun var mı?","en":"Any injury or health issue?","hintTr":"","hintEn":"","options":"back | Bel | Lower back\nknee | Diz | Knee\nshoulder | Omuz | Shoulder\nneck | Boyun | Neck\nhip | Kalça | Hip\nwrist | Bilek | Wrist\nheart_bp | Kalp / tansiyon | Heart / blood pressure\nother | Diğer | Other","settings":"note=yes"},{"id":"train_days","type":"multi","tr":"Haftada dört gün çalışacağız. Hangi günler sana uyar?","en":"We’ll train four days a week. Which days suit you?","hintTr":"En az dört gün seç.","hintEn":"Pick at least four.","options":"mon | Pazartesi | Monday | Pzt | Mon\ntue | Salı | Tuesday | Sal | Tue\nwed | Çarşamba | Wednesday | Çar | Wed\nthu | Perşembe | Thursday | Per | Thu\nfri | Cuma | Friday | Cum | Fri\nsat | Cumartesi | Saturday | Cmt | Sat\nsun | Pazar | Sunday | Paz | Sun","settings":"min=4; look=days; rec=mon,tue,thu,fri"},{"id":"train_time","type":"multi","tr":"Günün hangi saatleri uygun?","en":"What time of day works?","hintTr":"Birden fazla seçebilirsin.","hintEn":"You can pick more than one.","options":"morning | Sabah · 06–10 | Morning · 06–10\nmidday | Öğle · 10–14 | Midday · 10–14\nafternoon | Öğleden sonra · 14–18 | Afternoon · 14–18\nevening | Akşam · 18–22 | Evening · 18–22","settings":"min=1"}],"texts":{"brand":"Velmo Coaching","intro":"yes","review":"no","welcome_body_tr":"Antrenman ve beslenme, sana göre.","welcome_body_en":"Training and nutrition, built around you.","welcome_cta_tr":"Planımı oluştur","welcome_cta_en":"Build my plan","sent_title_tr":"Tamamdır.","sent_title_en":"All set.","sent_body_tr":"Planını hazırlıyorum.","sent_body_en":"I’m building your plan.","before_heading_tr":"İlk seanstan önce","before_heading_en":"Before the first session","before_tr":"Antrenmandan 3-4 saat önce bir öğün ye: karbonhidrat ve protein.\nÖncesinde kahveni iç.\nYanına bir ceket al.","before_en":"Eat a meal 3-4 hours before training: carbs and protein.\nHave your coffee before.\nBring a jacket."}};
+  var FALLBACK = {"code":"","questions":[{"id":"age","type":"number","tr":"Kaç yaşındasın?","en":"How old are you?","hintTr":"","hintEn":"","options":"","settings":"min=14; max=80; step=1; start=30; unit_tr=yaş; unit_en=years"},{"id":"height","type":"number","tr":"Boyun kaç?","en":"How tall are you?","hintTr":"","hintEn":"","options":"","settings":"min=140; max=215; step=1; start=172; unit_tr=cm; unit_en=cm"},{"id":"weight","type":"number","tr":"Şu anki kilon?","en":"Your current weight?","hintTr":"","hintEn":"","options":"","settings":"min=40; max=180; step=0.5; start=75; unit_tr=kg; unit_en=kg"},{"id":"steps","type":"number","tr":"Günde ortalama kaç adım atıyorsun?","en":"How many steps do you average a day?","hintTr":"Telefonundaki Sağlık uygulamasından bakabilirsin.","hintEn":"You can check the Health app on your phone.","options":"","settings":"min=0; max=25000; step=500; start=6000; unit_tr=adım; unit_en=steps; skip=yes"},{"id":"foods","type":"multi","tr":"Bunlardan hangilerini yersin?","en":"Which of these do you eat?","hintTr":"Yediklerinin hepsine dokun.","hintEn":"Tap everything you eat.","options":"chicken | Tavuk, hindi | Chicken, turkey\nfish | Balık | Fish\negg | Yumurta | Eggs\nyoghurt | Yoğurt | Yoghurt\ncheese | Peynir, lor | Cheese\nlegumes | Baklagil | Beans, lentils\nnuts | Kuruyemiş | Nuts\nrice | Pirinç | Rice\nbulgur | Bulgur | Bulgur\npasta | Makarna | Pasta\npotato | Patates | Potatoes\nbread | Ekmek | Bread\noats | Yulaf | Oats\nfruit | Meyve | Fruit","settings":"min=1; cols=2"},{"id":"meals","type":"single","tr":"Günde kaç öğün yersin?","en":"How many meals a day do you eat?","hintTr":"","hintEn":"","options":"2 | 2 | 2\n3 | 3 | 3\n4 | 4 | 4\n5 | 5 | 5\n6 | 6 ve üzeri | 6 or more","settings":""},{"id":"health","type":"yesno","tr":"Sakatlığın ya da sağlık sorunun var mı?","en":"Any injury or health issue?","hintTr":"","hintEn":"","options":"back | Bel | Lower back\nknee | Diz | Knee\nshoulder | Omuz | Shoulder\nneck | Boyun | Neck\nhip | Kalça | Hip\nwrist | Bilek | Wrist\nheart_bp | Kalp / tansiyon | Heart / blood pressure\nother | Diğer | Other","settings":"note=yes"},{"id":"train_days","type":"multi","tr":"Haftada dört gün çalışacağız. Hangi günler sana uyar?","en":"We’ll train four days a week. Which days suit you?","hintTr":"En az dört gün seç.","hintEn":"Pick at least four.","options":"mon | Pazartesi | Monday | Pzt | Mon\ntue | Salı | Tuesday | Sal | Tue\nwed | Çarşamba | Wednesday | Çar | Wed\nthu | Perşembe | Thursday | Per | Thu\nfri | Cuma | Friday | Cum | Fri\nsat | Cumartesi | Saturday | Cmt | Sat\nsun | Pazar | Sunday | Paz | Sun","settings":"min=4; look=days; rec=sat,sun,tue,wed"},{"id":"train_time","type":"multi","tr":"Günün hangi saatleri uygun?","en":"What time of day works?","hintTr":"Birden fazla seçebilirsin.","hintEn":"You can pick more than one.","options":"morning | Sabah · 06–10 | Morning · 06–10\nmidday | Öğle · 10–14 | Midday · 10–14\nafternoon | Öğleden sonra · 14–18 | Afternoon · 14–18\nevening | Akşam · 18–22 | Evening · 18–22","settings":"min=1"}],"texts":{"brand":"Velmo Coaching","intro":"yes","review":"no","welcome_body_tr":"Antrenman ve beslenme, sana göre.","welcome_body_en":"Training and nutrition, built around you.","welcome_body_ar":"تدريب وتغذية على مقاسك.","welcome_cta_tr":"Planımı oluştur","welcome_cta_ar":"ابدأ الآن","welcome_cta_en":"Build my plan","sent_title_tr":"Tamamdır.","sent_title_en":"All set.","sent_title_ar":"تم.","sent_body_tr":"Planını hazırlıyorum.","sent_body_ar":"أجهّز خطتك الآن.","before_heading_ar":"قبل الحصة الأولى","before_ar":"تناول وجبة قبل التمرين بثلاث إلى أربع ساعات: كربوهيدرات وبروتين.\nاشرب قهوتك قبله.\nأحضر معك سترة.","sent_body_en":"I’m building your plan.","before_heading_tr":"İlk seanstan önce","before_heading_en":"Before the first session","before_tr":"Antrenmandan 3-4 saat önce bir öğün ye: karbonhidrat ve protein.\nÖncesinde kahveni iç.\nYanına bir ceket al.","before_en":"Eat a meal 3-4 hours before training: carbs and protein.\nHave your coffee before.\nBring a jacket."},"ar":{"name":{"t":"ما اسمك؟","h":"الاسم واسم العائلة"},"sex":{"t":"ما جنسك؟","h":"نحتاجه لحساب السعرات.","o":{"male":"ذكر","female":"أنثى"}},"age":{"t":"كم عمرك؟","u":"سنة"},"height":{"t":"كم طولك؟","u":"cm"},"weight":{"t":"كم وزنك؟","u":"kg"},"goal":{"t":"ما هدفك؟","o":{"lose":"خسارة الدهون","recomp":"الوزن نفسه مع جسم أنشف","gain":"بناء العضل وزيادة الوزن"}},"steps":{"t":"كم خطوة تمشي في اليوم تقريبًا؟","h":"افتح تطبيق Health، الرقم في أول شاشة.","u":"خطوة"},"foods":{"t":"أيّ هذه الأطعمة تأكل؟","h":"اختر كل ما تأكله.","o":{"chicken":"دجاج، ديك رومي","fish":"سمك","egg":"بيض","yoghurt":"لبن زبادي","cheese":"جبن","legumes":"بقوليات","nuts":"مكسرات","rice":"أرز","bulgur":"برغل","pasta":"معكرونة","potato":"بطاطا","bread":"خبز","oats":"شوفان","fruit":"فاكهة"}},"meals":{"t":"كم وجبة تأكل في اليوم؟","o":{"6":"6 أو أكثر"}},"health":{"t":"هل لديك إصابة أو مشكلة صحية؟","o":{"back":"أسفل الظهر","knee":"الركبة","shoulder":"الكتف","neck":"الرقبة","hip":"الورك","wrist":"الرسغ","heart_bp":"القلب / ضغط الدم","other":"أخرى"}},"train_days":{"t":"سنتدرّب أربعة أيام في الأسبوع. أي الأيام تناسبك؟","h":"اختر أربعة أيام على الأقل.","o":{"mon":"الاثنين","tue":"الثلاثاء","wed":"الأربعاء","thu":"الخميس","fri":"الجمعة","sat":"السبت","sun":"الأحد"},"s":{"mon":"ن","tue":"ث","wed":"ر","thu":"خ","fri":"ج","sat":"س","sun":"ح"}},"train_time":{"t":"ما الأوقات التي تناسبك في اليوم؟","h":"يمكنك اختيار أكثر من وقت.","o":{"morning":"الصباح · 06–10","midday":"الظهر · 10–14","afternoon":"بعد الظهر · 14–18","evening":"المساء · 18–22"}},"next_session":{"t":"أي يوم يناسبك للحصة القادمة؟","h":"اختر الأيام المناسبة."}}};
   /** The sheet's script: it hands out the questions and takes the answers. Asked without any Google sign-in. */
   var API = 'https://script.google.com/macros/s/AKfycbxm3voEUyRaGcK0VkKzgsUQj-dTcpO_DFjN-UUxutY2-3jxr33s9eNnsFYL2DvyeHggkw/exec';
   var query = {};
@@ -387,10 +422,22 @@
       yes: 'Yes', no: 'No', skip: 'I don’t know',
       which: 'Which one?', today: 'Today', tomorrow: 'Tomorrow', thanks: 'Thank you, {name}.', thanksPlain: 'Thank you.',
       less: 'Less', more: 'More', rec: 'Recommended days', language: 'Language', other: 'Türkçe', otherCode: 'TR', progress: 'Progress',
-      empty: 'This link has no questions.', locale: 'en-GB' }
+      empty: 'This link has no questions.', locale: 'en-GB' },
+    ar: { start: 'ابدأ الآن', next: 'متابعة', done: 'تم', back: 'رجوع', reviewTitle: 'مراجعة أخيرة',
+      reviewHint: 'اضغط على ما تريد تغييره.', send: 'إرسال', sending: 'جارٍ الإرسال…',
+      retry: 'حاول مجددًا', fail: 'تعذّر الإرسال. إجاباتك محفوظة؛ تحقّق من الاتصال وحاول مجددًا.',
+      yes: 'نعم', no: 'لا', skip: 'لا أعرف',
+      which: 'أيّها؟', today: 'اليوم', tomorrow: 'غدًا', thanks: 'شكرًا {name}.', thanksPlain: 'شكرًا.',
+      less: 'أقل', more: 'أكثر', rec: 'الأيام الموصى بها', language: 'اللغة', other: 'English', otherCode: 'EN',
+      progress: 'التقدّم', empty: 'لا توجد أسئلة في هذا الرابط.', locale: 'ar-u-nu-latn' }
   };
+  var LANGS = ['tr', 'en', 'ar'];
+  /** Arabic for the built-in questions; anything missing falls back to English. */
+  var AR = (FALLBACK && FALLBACK.ar) || {};
   var ICON = {
     brand: '<svg viewBox="170 140 710 672" aria-hidden="true"><path class="rear" d="M179.2 235.0 L394.2 802.7 L577.1 802.7 L362.1 235.0Z" opacity=".5"/><path class="front" d="M708.0 199.2 L429.8 802.7 L618.0 802.7 L863.2 270.8 L869.3 252.7 L871.1 233.5 L868.6 214.6 L862.0 196.6 L851.5 180.6 L837.8 167.3 L821.4 157.3 L803.3 151.3 L784.1 149.5 L765.2 152.0 L747.2 158.6 L731.2 169.1 L717.9 182.8Z"/></svg>',
+    globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9c-2.6-2.6-3.9-5.6-3.9-9S9.4 5.6 12 3z"/></svg>',
+    updown: '<svg class="ud" viewBox="0 0 10 16" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 6L5 2.5 8.5 6M1.5 10L5 13.5 8.5 10"/></svg>',
     chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>',
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
     tick: '<svg class="tick" viewBox="0 0 56 56" aria-hidden="true"><path d="M10 29l13 13 23-27"/></svg>'
@@ -405,8 +452,10 @@
     });
     var options = String(q.options || '').split('\n').map(function (line) {
       var parts = line.split('|').map(function (p) { return p.trim(); });
+      var ar = AR[q.id] || {};
       return parts[0] ? { v: parts[0], tr: parts[1] || parts[0], en: parts[2] || parts[1] || parts[0],
-        shortTr: parts[3] || '', shortEn: parts[4] || parts[3] || '' } : null;
+        ar: (ar.o && ar.o[parts[0]]) || '', shortTr: parts[3] || '', shortEn: parts[4] || parts[3] || '',
+        shortAr: (ar.s && ar.s[parts[0]]) || '' } : null;
     }).filter(Boolean);
     return { id: q.id, type: q.type, tr: q.tr, en: q.en || q.tr, hintTr: q.hintTr || '', hintEn: q.hintEn || q.hintTr || '',
       options: options, cfg: cfg };
@@ -425,13 +474,13 @@
   var FINAL = WITH_REVIEW ? N : N - 1;
   var STORE = 'intake:' + (BOOT.code || 'default');
 
-  var S = { lang: query.lang === 'en' ? 'en' : 'tr', at: -1, answers: {}, toReview: false, sending: false,
+  var S = { lang: LANGS.indexOf(query.lang) !== -1 ? query.lang : 'tr', at: -1, answers: {}, toReview: false, sending: false,
     failed: false, sent: false, ref: Math.random().toString(36).slice(2, 12) + Date.now().toString(36) };
   try {
     var saved = JSON.parse(localStorage.getItem(STORE) || 'null');
     if (saved && saved.answers && !query.fresh) {
       S.answers = saved.answers; S.ref = saved.ref || S.ref;
-      if (!query.lang && saved.lang) S.lang = saved.lang;
+      if (!query.lang && LANGS.indexOf(saved.lang) !== -1) S.lang = saved.lang;
       if (typeof saved.at === 'number') S.at = saved.at;
     }
   } catch (e) {}
@@ -442,13 +491,18 @@
   }
 
   var $ = function (id) { return document.getElementById(id); };
-  var stage = $('stage'), nextBtn = $('next'), skipBtn = $('skip'), backBtn = $('back'), langBtn = $('lang'),
+  var stage = $('stage'), nextBtn = $('next'), skipBtn = $('skip'), backBtn = $('back'), langBox = $('lang'),
+    langBtn = $('langBtn'), langMenu = $('langMenu'), veil = $('veil'),
     progress = $('progress'), errorBox = $('error'), dock = $('dock'), lockup = $('lockup');
   var BRAND = (BOOT.texts && BOOT.texts.brand) || 'Velmo Coaching';
   var calm = false;
   try { calm = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+  // The mark stands for the V of the name wherever the name is drawn.
+  var MARKED = /^V/.test(BRAND);
   lockup.innerHTML = ICON.brand;
-  lockup.appendChild(document.createTextNode(BRAND));
+  lockup.appendChild(document.createTextNode(MARKED ? BRAND.slice(1) : ' ' + BRAND));
+  lockup.setAttribute('role', 'img');
+  lockup.setAttribute('aria-label', BRAND);
   function t(key) { return UI[S.lang][key]; }
   function text(key) { return (BOOT.texts && BOOT.texts[key + '_' + S.lang]) || (FALLBACK && FALLBACK.texts[key + '_' + S.lang]) || ''; }
   function el(tag, props, kids) {
@@ -463,9 +517,13 @@
     (kids || []).forEach(function (kid) { if (kid) node.appendChild(kid); });
     return node;
   }
-  function label(option) { return option[S.lang]; }
-  function title(q) { return q[S.lang]; }
-  function hint(q) { return S.lang === 'tr' ? q.hintTr : q.hintEn; }
+  function label(option) { return option[S.lang] || option.en; }
+  function title(q) { return S.lang === 'ar' ? (AR[q.id] && AR[q.id].t) || q.en : q[S.lang]; }
+  function hint(q) {
+    if (S.lang === 'ar') return AR[q.id] ? AR[q.id].h || '' : q.hintEn;
+    return S.lang === 'tr' ? q.hintTr : q.hintEn;
+  }
+  function unit(q) { return (S.lang === 'ar' && AR[q.id] && AR[q.id].u) || q.cfg['unit_' + (S.lang === 'tr' ? 'tr' : 'en')] || ''; }
   function answer(q) {
     if (!S.answers[q.id]) {
       S.answers[q.id] = q.type === 'number' ? { v: Number(q.cfg.start !== undefined ? q.cfg.start : q.cfg.min || 0), skipped: false }
@@ -519,7 +577,7 @@
   function shown(q) {
     var a = answer(q);
     if (q.type === 'text') return a.v.trim();
-    if (q.type === 'number') return a.skipped ? t('skip') : shownNumber(q, a.v) + ' ' + (q.cfg['unit_' + S.lang] || '');
+    if (q.type === 'number') return a.skipped ? t('skip') : shownNumber(q, a.v) + ' ' + unit(q);
     if (q.type === 'single') return picked(q, [a.v]);
     if (q.type === 'dates') {
       return dayList(q).filter(function (d) { return a.v.indexOf(d.v) !== -1; })
@@ -621,7 +679,7 @@
       out.textContent = words;
       out.className = words.length >= 5 ? 'l5' : words.length === 4 ? 'l4' : '';
       scroller.setAttribute('aria-valuenow', String(a.v));
-      scroller.setAttribute('aria-valuetext', words + ' ' + (q.cfg['unit_' + S.lang] || ''));
+      scroller.setAttribute('aria-valuetext', words + ' ' + unit(q));
     }
     function set(index, smooth) {
       index = Math.max(0, Math.min(count, index));
@@ -663,7 +721,7 @@
     setTimeout(place, 80);
     return el('div', { class: 'control' }, [
       el('div', { class: 'num' }, [out]),
-      el('div', { class: 'unit', text: q.cfg['unit_' + S.lang] || '' }),
+      el('div', { class: 'unit', text: unit(q) }),
       el('div', { class: 'ruler' }, [scroller])
     ]);
   }
@@ -697,7 +755,7 @@
       var more = el('div', { class: 'more' }, [inner]);
       var open = function (on) { more.classList.toggle('open', on); more.inert = !on; };
       open(a.yes === true);
-      var yn = [{ v: 'no', tr: UI.tr.no, en: UI.en.no }, { v: 'yes', tr: UI.tr.yes, en: UI.en.yes }];
+      var yn = [{ v: 'no', tr: UI.tr.no, en: UI.en.no, ar: UI.ar.no }, { v: 'yes', tr: UI.tr.yes, en: UI.en.yes, ar: UI.ar.yes }];
       return el('div', { class: 'control' }, [
         listControl(q, yn, false, function () { return a.yes === null ? [] : [a.yes ? 'yes' : 'no']; }, function (value) {
           a.yes = value === 'yes';
@@ -714,7 +772,7 @@
     if (q.type === 'dates' || q.cfg.look === 'days') {
       var rec = recommended(q);
       var days = q.type === 'dates' ? dayList(q) : q.options.map(function (o) {
-        return { v: o.v, short: (S.lang === 'tr' ? o.shortTr : o.shortEn) || label(o).slice(0, 3), full: label(o),
+        return { v: o.v, short: (S.lang === 'tr' ? o.shortTr : S.lang === 'ar' ? o.shortAr : o.shortEn) || label(o).slice(0, 3), full: label(o),
           rec: rec.indexOf(o.v) !== -1 };
       });
       return el('div', { class: 'control' }, [daysControl(q, days, function () { return a.v; },
@@ -758,7 +816,8 @@
     var mark = el('h1', { class: 'wordmark', tabindex: '-1', 'aria-label': BRAND });
     words.forEach(function (word, index) {
       var kids = index === 0 ? [el('span', { class: 'vm', html: ICON.brand })] : [];
-      mark.appendChild(el('span', { class: 'l', 'aria-hidden': 'true' }, kids.concat(letters(word, at))));
+      var shown = index === 0 && MARKED ? word.slice(1) : word;
+      mark.appendChild(el('span', { class: 'l', 'aria-hidden': 'true' }, kids.concat(letters(shown, at))));
       at += word.length + 1;
     });
     return el('section', { class: 'screen intro' }, [
@@ -818,12 +877,13 @@
     var share = N ? Math.max(0, Math.min(1, (S.at + 1) / (FINAL + 1))) : 0;
     progress.firstElementChild.style.transform = 'scaleX(' + share + ')';
     progress.setAttribute('aria-valuenow', String(Math.round(share * 100)));
-    langBtn.setAttribute('data-on', S.lang);
+    langBtn.innerHTML = ICON.globe + '<span>' + S.lang.toUpperCase() + '</span>' + ICON.updown;
     langBtn.setAttribute('aria-label', t('language'));
-    Array.prototype.forEach.call(langBtn.querySelectorAll('button'), function (button) {
+    Array.prototype.forEach.call(langMenu.querySelectorAll('button'), function (button) {
+      if (!button.lastElementChild) button.insertAdjacentHTML('beforeend', ICON.check);
       button.setAttribute('aria-checked', String(button.getAttribute('data-l') === S.lang));
     });
-    langBtn.hidden = S.sending && !S.sent;
+    langBox.hidden = S.sending && !S.sent;
     errorBox.hidden = !(S.failed && S.at === FINAL);
     errorBox.textContent = t('fail');
     skipBtn.hidden = !(q && q.type === 'number' && q.cfg.skip === 'yes');
@@ -837,6 +897,8 @@
     nextBtn.setAttribute('data-words', words);
     nextBtn.disabled = S.sending || (group ? !group.every(valid) : false);
     document.documentElement.lang = S.lang;
+    document.documentElement.dir = S.lang === 'ar' ? 'rtl' : 'ltr';
+    if (S.lang === 'ar') arabicFace();
   }
   /** Each part of an arriving screen lands in turn: the heading, the line under it, then the answers. */
   function stagger(screen, base) {
@@ -950,6 +1012,7 @@
 
   document.onkeydown = function (e) {
     var tag = e.target && e.target.tagName;
+    if (e.key === 'Escape') return menu(false);
     if (e.key === 'Enter' && tag !== 'BUTTON' && tag !== 'TEXTAREA' && tag !== 'INPUT') forward();
   };
   nextBtn.onclick = forward;
@@ -961,16 +1024,34 @@
     save();
     forward();
   });
-  Array.prototype.forEach.call(langBtn.querySelectorAll('button'), function (button) {
+  /** Arabic is set in Cairo, the app's Arabic face; it is fetched only when Arabic is picked. */
+  function arabicFace() {
+    if (document.getElementById('cairo')) return;
+    var link = el('link', { id: 'cairo', rel: 'stylesheet',
+      href: 'https://fonts.googleapis.com/css2?family=Cairo:wght@600;700;800&display=swap' });
+    document.head.appendChild(link);
+  }
+  function menu(open) {
+    langMenu.classList.toggle('open', open);
+    langMenu.inert = !open;
+    veil.hidden = !open;
+    langBtn.setAttribute('aria-expanded', String(open));
+    if (open) tick();
+  }
+  menu(false);
+  langBtn.onclick = function () { menu(!langMenu.classList.contains('open')); };
+  veil.onclick = function () { menu(false); };
+  Array.prototype.forEach.call(langMenu.querySelectorAll('button'), function (button) {
     button.onclick = function () {
       var to = button.getAttribute('data-l');
+      menu(false);
       if (to === S.lang) return;
       S.lang = to;
-      tick();
       if (!S.sent || S.sending) {
         try { localStorage.setItem(STORE, JSON.stringify({ answers: S.answers, lang: S.lang, at: S.at, ref: S.ref })); } catch (e) {}
       }
-      redraw(true, 'swap');
+      // The menu folds away first, then the screen's words change.
+      setTimeout(function () { redraw(true, 'swap'); }, calm ? 0 : 140);
     };
   });
   draw(opening ? 'first' : null);
