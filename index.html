@@ -5,9 +5,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Velmo Coaching</title>
-<meta name="description" content="Hazır şablon yok: antrenmanın da beslenmen de sana göre ayarlanır. Birkaç kısa soru, bir dakikanı alır.">
+<meta name="description" content="Velmo Metodu: haftada birkaç saat sıkı antrenman, gerçek yemek ve seninle birlikte ilerleyen rakamlar.">
 <meta property="og:title" content="Velmo Coaching">
-<meta property="og:description" content="Hazır şablon yok: antrenmanın da beslenmen de sana göre ayarlanır. Birkaç kısa soru, bir dakikanı alır.">
+<meta property="og:description" content="Velmo Metodu: haftada birkaç saat sıkı antrenman, gerçek yemek ve seninle birlikte ilerleyen rakamlar.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Velmo Coaching">
 <meta name="theme-color" content="#E7E2D9" media="(prefers-color-scheme: light)">
@@ -34,6 +34,7 @@
     --on-accent: #FFFFFF;
     --accent-off: rgba(20, 22, 28, .28);
     --error: #A3261E;
+    --rec: #1E8A47;
     --quint: cubic-bezier(.22, 1, .36, 1);
     --std: cubic-bezier(.4, 0, .2, 1);
     --pop: cubic-bezier(.34, 1.4, .64, 1);
@@ -46,7 +47,7 @@
       --muted: rgba(255, 255, 255, .68); --line: rgba(255, 255, 255, .14); --row: rgba(255, 255, 255, .075);
       --row-edge: rgba(255, 255, 255, .16); --row-press: rgba(255, 255, 255, .14); --row-shadow: none;
       --track: rgba(255, 255, 255, .12); --tick: rgba(255, 255, 255, .34); --accent: #FFFFFF;
-      --on-accent: #14161C; --accent-off: rgba(255, 255, 255, .28); --error: #FF8A7A; color-scheme: dark;
+      --on-accent: #14161C; --accent-off: rgba(255, 255, 255, .28); --error: #FF8A7A; --rec: #3DDC84; color-scheme: dark;
     }
   }
   :root[data-theme="dark"] {
@@ -54,7 +55,7 @@
     --muted: rgba(255, 255, 255, .68); --line: rgba(255, 255, 255, .14); --row: rgba(255, 255, 255, .075);
     --row-edge: rgba(255, 255, 255, .16); --row-press: rgba(255, 255, 255, .14); --row-shadow: none;
     --track: rgba(255, 255, 255, .12); --tick: rgba(255, 255, 255, .34); --accent: #FFFFFF;
-    --on-accent: #14161C; --accent-off: rgba(255, 255, 255, .28); --error: #FF8A7A; color-scheme: dark;
+    --on-accent: #14161C; --accent-off: rgba(255, 255, 255, .28); --error: #FF8A7A; --rec: #3DDC84; color-scheme: dark;
   }
 
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -76,22 +77,23 @@
   #app { position: relative; height: 100vh; height: 100dvh; max-width: 520px; margin: 0 auto; display: flex;
     flex-direction: column; }
 
-  /* Top bar: back, progress, language. On the welcome screen the brand sits where the progress will be. */
-  .bar { display: flex; align-items: center; gap: 6px; padding: max(6px, env(safe-area-inset-top)) 12px 0; min-height: 60px; }
+  /* Top bar: back, the name, language; the progress line runs under them. */
+  .bar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; column-gap: 2px;
+    padding: max(6px, env(safe-area-inset-top)) 12px 0; }
   .icon-btn { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; flex: none;
-    transition: opacity .24s ease, transform .12s var(--quint), background .2s ease; }
+    transition: opacity .24s ease, transform .12s var(--quint), background .2s ease, width .36s var(--quint); }
   .icon-btn:active { background: var(--track); transform: scale(.94); transition-duration: .06s; }
   .icon-btn svg { width: 22px; height: 22px; }
-  .icon-btn[hidden] { display: grid; opacity: 0; pointer-events: none; }
-  .mid { flex: 1; min-width: 0; display: grid; align-items: center; }
-  .mid > * { grid-area: 1 / 1; transition: opacity .3s ease; }
-  .progress { height: 4px; background: var(--track); border-radius: 2px; overflow: hidden; }
+  .icon-btn[hidden] { display: grid; opacity: 0; pointer-events: none; width: 12px; }
+  .lockup { display: flex; align-items: center; gap: 8px; font-size: 18px; white-space: nowrap; min-width: 0;
+    overflow: hidden; transition: opacity .36s ease; }
+  .lockup svg { width: 24px; height: 22px; fill: currentColor; flex: none; }
+  .lockup[hidden] { display: flex; opacity: 0; }
+  .progress { grid-column: 1 / -1; height: 4px; margin: 8px 12px 0; background: var(--track); border-radius: 2px;
+    overflow: hidden; transition: opacity .3s ease; }
   .progress i { display: block; height: 100%; width: 100%; background: var(--accent); border-radius: 2px;
     transform-origin: left; transform: scaleX(0); transition: transform .6s var(--quint); }
   .progress[hidden] { display: block; opacity: 0; }
-  .lockup { display: flex; align-items: center; gap: 9px; font-size: 17px; margin-left: -38px; white-space: nowrap; }
-  .lockup svg { width: 24px; height: 22px; fill: currentColor; flex: none; }
-  .lockup[hidden] { display: flex; opacity: 0; }
   .lang { height: 34px; padding: 0 13px 0 10px; display: flex; align-items: center; gap: 6px; font-size: 14px;
     color: var(--ink); border-radius: 17px; flex: none; background: var(--row);
     box-shadow: inset 0 0 0 1px var(--row-edge); transition: transform .12s var(--quint), opacity .2s ease; }
@@ -129,19 +131,33 @@
   .hint { margin: 10px 0 0; color: var(--muted); font-size: 17px; line-height: 1.35; text-wrap: pretty; }
   .control { padding-top: 24px; }
 
-  /* Welcome: the mark, the promise, one line. Anchored low, next to the button. */
+  /* Welcome: the name leads, drawn in letter by letter beside the mark; the method in two sentences under it. */
   .intro::before { flex: 1 0 0px; }
-  .intro::after { flex: 0 0 8px; }
-  .intro .brandmark { width: 76px; height: 70px; color: var(--ink); }
-  .intro .brandmark svg, .signoff svg { display: block; width: 100%; height: 100%; fill: currentColor; }
-  .intro .brandmark path { transform-box: fill-box; transform-origin: 50% 100%; }
-  .intro.first .brandmark path { animation: blade .8s var(--quint) backwards; }
-  .intro.first .brandmark path + path { animation-delay: .12s; }
-  @keyframes blade { from { opacity: 0; transform: translateY(18px) scaleY(.7); } }
-  .intro h1 { margin-top: 26px; font-size: 46px; line-height: 1.02; letter-spacing: -.015em; max-width: 9.5em; }
-  .intro .hint { font-size: 18px; line-height: 1.4; margin-top: 16px; max-width: 31ch; }
-  .signoff { display: flex; align-items: center; gap: 9px; margin: 34px 0 4px; font-size: 16px; }
-  .signoff span.m { width: 22px; height: 20px; flex: none; }
+  .intro::after { flex: 0 0 4px; }
+  .wordmark { margin: 0; font-size: clamp(50px, 17.5vw, 80px); line-height: .98; letter-spacing: -.025em; font-weight: 400; }
+  .wordmark .l { display: flex; align-items: center; white-space: nowrap; }
+  .wordmark .l + .l { color: var(--muted); }
+  .wordmark .vm { width: .86em; height: .8em; margin: 0 .12em 0 -.02em; flex: none; }
+  .wordmark .vm svg { display: block; width: 100%; height: 100%; fill: var(--ink); overflow: visible; }
+  .wordmark .vm path { transform-box: fill-box; transform-origin: 50% 100%; }
+  .wordmark .ch { display: inline-block; }
+  .intro.first .wordmark .ch { animation: letter .8s var(--quint) backwards; animation-delay: calc(var(--i) * 46ms + 360ms); }
+  .intro.first .wordmark .vm path { animation: blade .9s var(--quint) backwards; }
+  .intro.first .wordmark .vm path + path { animation-delay: .14s; }
+  /* The mark keeps lifting, quietly: the blades part and lock back, the way the app's own opening does. */
+  .wordmark .vm .front { animation: rep 5.2s 2.4s var(--std) infinite; }
+  .wordmark .vm .rear { animation: rep-rear 5.2s 2.4s var(--std) infinite; }
+  .intro.first .wordmark .vm .front { animation: blade .9s .14s var(--quint) backwards, rep 5.2s 2.4s var(--std) infinite; }
+  .intro.first .wordmark .vm .rear { animation: blade .9s var(--quint) backwards, rep-rear 5.2s 2.4s var(--std) infinite; }
+  @keyframes letter { from { opacity: 0; transform: translate3d(0, .42em, 0) scale(.96); filter: blur(8px); } }
+  @keyframes blade { from { opacity: 0; transform: translateY(26%) scaleY(.6); } }
+  @keyframes rep { 0%, 82%, 100% { transform: none; } 88% { transform: translate(5%, 7%); } 93% { transform: translate(-1.5%, -2%); } }
+  @keyframes rep-rear { 0%, 82%, 100% { transform: none; } 88% { transform: translate(-4%, 6%); } 93% { transform: translate(1%, -1.5%); } }
+  .eyebrow { margin: 30px 0 0; font-size: 13px; letter-spacing: .14em; text-transform: uppercase; color: var(--ink);
+    display: flex; align-items: center; gap: 10px; }
+  .eyebrow::before { content: ""; width: 22px; height: 2px; border-radius: 1px; background: currentColor; }
+  .intro .hint { font-size: 18px; line-height: 1.42; margin-top: 12px; max-width: 33ch; }
+  .intro .meta { margin: 22px 0 0; font-size: 14px; color: var(--muted); }
 
   /* Choices: full-width glass rows; the picked one turns solid, with a check at the trailing edge. */
   .list { display: grid; gap: 10px; }
@@ -177,6 +193,13 @@
   .count { margin: 16px 0 0; text-align: center; font-size: 15px; color: var(--muted);
     transition: color .2s ease; }
   .count.met { color: var(--ink); }
+  /* The days the coach recommends: ringed in the app's own "sweet spot" green until picked. */
+  .day.rec { box-shadow: inset 0 0 0 2px var(--rec), var(--row-shadow); color: var(--rec); }
+  .day.rec[aria-pressed="true"] { color: var(--on-accent); box-shadow: inset 0 0 0 1px transparent, 0 0 0 2px var(--bg), 0 0 0 4px var(--rec); }
+  .rec-note { margin: 18px 0 0; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 15px;
+    color: var(--rec); white-space: nowrap; }
+  .rec-note::before { content: ""; width: 12px; height: 12px; border-radius: 50%; box-shadow: inset 0 0 0 2px var(--rec); flex: none; }
+  .rec-note + .count { margin-top: 8px; }
   .list.cols { grid-template-columns: 1fr 1fr; gap: 8px; }
   .list.cols .item { min-height: 54px; padding: 10px 14px 10px 16px; font-size: 17px; gap: 8px; border-radius: 18px; }
   .list.cols .item .mark, .list.cols .item .mark svg { width: 18px; height: 18px; }
@@ -238,17 +261,18 @@
   .row svg { grid-column: 2; grid-row: 1 / span 2; width: 18px; height: 18px; color: var(--muted); }
   .row:active { opacity: .6; }
 
-  /* Sent */
-  .sent .tick { width: 56px; height: 56px; margin-top: 8px; }
+  /* Sent: a tick, two words, three short lines. */
+  .sent .tick { width: 56px; height: 56px; }
   .sent .tick path { stroke: var(--accent); stroke-width: 4; fill: none; stroke-linecap: round; stroke-linejoin: round;
     stroke-dasharray: 60; stroke-dashoffset: 60; animation: draw .7s .2s var(--quint) forwards; }
   @keyframes draw { to { stroke-dashoffset: 0; } }
-  .sent h1 { margin-top: 20px; font-size: 36px; line-height: 1.06; }
-  .sent h2 { margin: 34px 0 10px; font-size: 15px; font-weight: 400; color: var(--muted); }
+  .sent h1 { margin-top: 18px; font-size: 44px; line-height: 1.02; letter-spacing: -.015em; }
+  .sent .hint { font-size: 19px; margin-top: 8px; }
+  .sent h2 { margin: 34px 0 10px; font-size: 13px; font-weight: 400; letter-spacing: .14em; text-transform: uppercase;
+    color: var(--muted); }
   .sent ol { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; }
-  .sent ol li { padding: 14px 18px; font-size: 17px; line-height: 1.35; text-wrap: pretty; border-radius: 18px;
+  .sent ol li { padding: 15px 18px; font-size: 17px; line-height: 1.3; text-wrap: pretty; border-radius: 18px;
     background: var(--row); box-shadow: inset 0 0 0 1px var(--row-edge), var(--row-shadow); }
-  .sent .close { margin: 20px 0 0; color: var(--muted); font-size: 16px; }
 
   /* Dock: the one main action, in thumb reach */
   .dock { padding: 10px 18px max(14px, env(safe-area-inset-bottom)); display: grid; gap: 4px;
@@ -270,11 +294,12 @@
   .error[hidden] { display: none; }
 
   @media (max-height: 640px) {
-    h1 { font-size: 27px; } .intro h1 { font-size: 36px; } .num output { font-size: 68px; }
+    h1 { font-size: 27px; } .wordmark { font-size: 50px; } .eyebrow { margin-top: 20px; } .num output { font-size: 68px; }
     .control { padding-top: 18px; } .ruler { margin-top: 16px; } .item { min-height: 54px; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .screen .land, .screen.swap, .intro.first .brandmark path { animation: fade-in .2s ease both !important; animation-delay: 0s !important; }
+    .screen .land, .screen.swap, .wordmark .ch { animation: fade-in .2s ease both !important; animation-delay: 0s !important; }
+    .wordmark .vm path { animation: none !important; }
     .screen.leave { animation: none !important; opacity: 0; }
     .sent .tick path { animation: none; stroke-dashoffset: 0; }
     .progress i, .cta, .item, .item .mark, .day, .more { transition: none; }
@@ -287,11 +312,9 @@
     <button class="icon-btn" id="back" type="button" hidden>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
     </button>
-    <div class="mid">
-      <div class="lockup" id="lockup" hidden></div>
-      <div class="progress" id="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" hidden><i></i></div>
-    </div>
+    <div class="lockup" id="lockup" hidden></div>
     <button class="lang" id="lang" type="button"></button>
+    <div class="progress" id="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" hidden><i></i></div>
   </header>
   <main id="stage"></main>
   <footer class="dock" id="dock">
@@ -304,7 +327,7 @@
 <script>
 (function () {
   'use strict';
-  var FALLBACK = {"code":"","questions":[{"id":"age","type":"number","tr":"Kaç yaşındasın?","en":"How old are you?","hintTr":"","hintEn":"","options":"","settings":"min=14; max=80; step=1; start=30; unit_tr=yaş; unit_en=years"},{"id":"height","type":"number","tr":"Boyun kaç?","en":"How tall are you?","hintTr":"","hintEn":"","options":"","settings":"min=140; max=215; step=1; start=172; unit_tr=cm; unit_en=cm"},{"id":"weight","type":"number","tr":"Şu anki kilon?","en":"Your current weight?","hintTr":"","hintEn":"","options":"","settings":"min=40; max=180; step=0.5; start=75; unit_tr=kg; unit_en=kg"},{"id":"steps","type":"number","tr":"Günde ortalama kaç adım atıyorsun?","en":"How many steps do you average a day?","hintTr":"Telefonundaki Sağlık uygulamasından bakabilirsin.","hintEn":"You can check the Health app on your phone.","options":"","settings":"min=0; max=25000; step=500; start=6000; unit_tr=adım; unit_en=steps; skip=yes"},{"id":"foods","type":"multi","tr":"Bunlardan hangilerini yersin?","en":"Which of these do you eat?","hintTr":"Yediklerinin hepsine dokun.","hintEn":"Tap everything you eat.","options":"chicken | Tavuk | Chicken\nbeef | Kırmızı et | Red meat\nfish | Balık | Fish\negg | Yumurta | Eggs\nyoghurt | Yoğurt | Yoghurt\ncheese | Peynir | Cheese\nlegumes | Baklagil | Beans, lentils\nrice | Pirinç | Rice\nbulgur | Bulgur | Bulgur\npasta | Makarna | Pasta\npotato | Patates | Potatoes\nbread | Ekmek | Bread\noats | Yulaf | Oats\nfruit | Meyve | Fruit","settings":"min=1; cols=2"},{"id":"meals","type":"single","tr":"Günde kaç öğün yersin?","en":"How many meals a day do you eat?","hintTr":"","hintEn":"","options":"2 | 2 | 2\n3 | 3 | 3\n4 | 4 | 4\n5 | 5 | 5\n6 | 6 ve üzeri | 6 or more","settings":""},{"id":"health","type":"yesno","tr":"Sakatlığın ya da sağlık sorunun var mı?","en":"Any injury or health issue?","hintTr":"","hintEn":"","options":"back | Bel | Lower back\nknee | Diz | Knee\nshoulder | Omuz | Shoulder\nneck | Boyun | Neck\nhip | Kalça | Hip\nwrist | Bilek | Wrist\nheart_bp | Kalp / tansiyon | Heart / blood pressure\nother | Diğer | Other","settings":"note=yes"},{"id":"train_days","type":"multi","tr":"Haftada dört gün çalışacağız. Hangi günler sana uyar?","en":"We’ll train four days a week. Which days suit you?","hintTr":"En az dört gün seç.","hintEn":"Pick at least four.","options":"mon | Pazartesi | Monday | Pzt | Mon\ntue | Salı | Tuesday | Sal | Tue\nwed | Çarşamba | Wednesday | Çar | Wed\nthu | Perşembe | Thursday | Per | Thu\nfri | Cuma | Friday | Cum | Fri\nsat | Cumartesi | Saturday | Cmt | Sat\nsun | Pazar | Sunday | Paz | Sun","settings":"min=4; look=days"},{"id":"train_time","type":"multi","tr":"Günün hangi saatleri uygun?","en":"What time of day works?","hintTr":"Birden fazla seçebilirsin.","hintEn":"You can pick more than one.","options":"morning | Sabah · 06–10 | Morning · 06–10\nmidday | Öğle · 10–14 | Midday · 10–14\nafternoon | Öğleden sonra · 14–18 | Afternoon · 14–18\nevening | Akşam · 18–22 | Evening · 18–22","settings":"min=1"}],"texts":{"brand":"Velmo Coaching","intro":"yes","review":"no","welcome_title_tr":"Planını birlikte kuralım.","welcome_title_en":"Let’s build your plan.","welcome_body_tr":"Hazır şablon yok: antrenmanın da beslenmen de sana göre ayarlanır. Birkaç kısa soru, bir dakikanı alır.","welcome_body_en":"No templates: your training and your meals are set around you. A few quick questions, about a minute.","welcome_cta_tr":"Planımı oluştur","welcome_cta_en":"Build my plan","sent_title_tr":"Tamamdır, planını hazırlıyorum.","sent_title_en":"All set. I’m building your plan.","before_heading_tr":"İlk seanstan önce","before_heading_en":"Before the first session","before_tr":"Antrenmandan 3-4 saat önce mutlaka bir öğün ye: bir karbonhidrat (pirinç, patates, ekmek) ve bir protein (tavuk, et, yumurta).\nBir saatten az kaldıysa hızlı bir karbonhidrat al: muz, bal ya da beyaz ekmek.\nAntrenmandan önce kahveni iç.\nYanına bir ceket al, antrenmanda giyeceksin: antrenman ceketi ya da herhangi bir ceket olur.","before_en":"Eat a meal 3-4 hours before training: a carb (rice, potatoes, bread) and a protein (chicken, meat, eggs).\nIf less than an hour is left, have a fast carb: a banana, honey or white bread.\nHave your coffee before training.\nBring a jacket to wear during the workout: a workout jacket or any jacket will do.","sent_close_tr":"İhtiyaç duyduğum diğer bilgileri seanslar sırasında birlikte netleştiririz.","sent_close_en":"Anything else I need, we’ll sort out together during the sessions."}};
+  var FALLBACK = {"code":"","questions":[{"id":"age","type":"number","tr":"Kaç yaşındasın?","en":"How old are you?","hintTr":"","hintEn":"","options":"","settings":"min=14; max=80; step=1; start=30; unit_tr=yaş; unit_en=years"},{"id":"height","type":"number","tr":"Boyun kaç?","en":"How tall are you?","hintTr":"","hintEn":"","options":"","settings":"min=140; max=215; step=1; start=172; unit_tr=cm; unit_en=cm"},{"id":"weight","type":"number","tr":"Şu anki kilon?","en":"Your current weight?","hintTr":"","hintEn":"","options":"","settings":"min=40; max=180; step=0.5; start=75; unit_tr=kg; unit_en=kg"},{"id":"steps","type":"number","tr":"Günde ortalama kaç adım atıyorsun?","en":"How many steps do you average a day?","hintTr":"Telefonundaki Sağlık uygulamasından bakabilirsin.","hintEn":"You can check the Health app on your phone.","options":"","settings":"min=0; max=25000; step=500; start=6000; unit_tr=adım; unit_en=steps; skip=yes"},{"id":"foods","type":"multi","tr":"Bunlardan hangilerini yersin?","en":"Which of these do you eat?","hintTr":"Yediklerinin hepsine dokun.","hintEn":"Tap everything you eat.","options":"chicken | Tavuk | Chicken\nbeef | Kırmızı et | Red meat\nfish | Balık | Fish\negg | Yumurta | Eggs\nyoghurt | Yoğurt | Yoghurt\ncheese | Peynir | Cheese\nlegumes | Baklagil | Beans, lentils\nrice | Pirinç | Rice\nbulgur | Bulgur | Bulgur\npasta | Makarna | Pasta\npotato | Patates | Potatoes\nbread | Ekmek | Bread\noats | Yulaf | Oats\nfruit | Meyve | Fruit","settings":"min=1; cols=2"},{"id":"meals","type":"single","tr":"Günde kaç öğün yersin?","en":"How many meals a day do you eat?","hintTr":"","hintEn":"","options":"2 | 2 | 2\n3 | 3 | 3\n4 | 4 | 4\n5 | 5 | 5\n6 | 6 ve üzeri | 6 or more","settings":""},{"id":"health","type":"yesno","tr":"Sakatlığın ya da sağlık sorunun var mı?","en":"Any injury or health issue?","hintTr":"","hintEn":"","options":"back | Bel | Lower back\nknee | Diz | Knee\nshoulder | Omuz | Shoulder\nneck | Boyun | Neck\nhip | Kalça | Hip\nwrist | Bilek | Wrist\nheart_bp | Kalp / tansiyon | Heart / blood pressure\nother | Diğer | Other","settings":"note=yes"},{"id":"train_days","type":"multi","tr":"Haftada dört gün çalışacağız. Hangi günler sana uyar?","en":"We’ll train four days a week. Which days suit you?","hintTr":"En az dört gün seç.","hintEn":"Pick at least four.","options":"mon | Pazartesi | Monday | Pzt | Mon\ntue | Salı | Tuesday | Sal | Tue\nwed | Çarşamba | Wednesday | Çar | Wed\nthu | Perşembe | Thursday | Per | Thu\nfri | Cuma | Friday | Cum | Fri\nsat | Cumartesi | Saturday | Cmt | Sat\nsun | Pazar | Sunday | Paz | Sun","settings":"min=4; look=days; rec=mon,wed,fri,sun"},{"id":"train_time","type":"multi","tr":"Günün hangi saatleri uygun?","en":"What time of day works?","hintTr":"Birden fazla seçebilirsin.","hintEn":"You can pick more than one.","options":"morning | Sabah · 06–10 | Morning · 06–10\nmidday | Öğle · 10–14 | Midday · 10–14\nafternoon | Öğleden sonra · 14–18 | Afternoon · 14–18\nevening | Akşam · 18–22 | Evening · 18–22","settings":"min=1"}],"texts":{"brand":"Velmo Coaching","intro":"yes","review":"no","welcome_eyebrow_tr":"Velmo Metodu","welcome_eyebrow_en":"The Velmo Method","welcome_body_tr":"Haftada birkaç saat sıkı antrenman, gerçek yemek ve bir şablona uymak yerine seninle birlikte ilerleyen rakamlar. Spor bilimine ve yayımlanmış kanıta dayanır; tahmine değil.","welcome_body_en":"A few hard hours a week, real food, and numbers that move with you instead of a template you have to fit. Built on sports science and published evidence, never guesswork.","welcome_cta_tr":"Planımı oluştur","welcome_cta_en":"Build my plan","sent_title_tr":"Tamamdır.","sent_title_en":"All set.","sent_body_tr":"Planını hazırlıyorum.","sent_body_en":"I’m building your plan.","before_heading_tr":"İlk seanstan önce","before_heading_en":"Before the first session","before_tr":"Antrenmandan 3-4 saat önce bir öğün ye: karbonhidrat ve protein.\nÖncesinde kahveni iç.\nYanına bir ceket al.","before_en":"Eat a meal 3-4 hours before training: carbs and protein.\nHave your coffee before.\nBring a jacket."}};
   /** The sheet's script: it hands out the questions and takes the answers. Asked without any Google sign-in. */
   var API = 'https://script.google.com/macros/s/AKfycbxm3voEUyRaGcK0VkKzgsUQj-dTcpO_DFjN-UUxutY2-3jxr33s9eNnsFYL2DvyeHggkw/exec';
   var query = {};
@@ -344,18 +367,20 @@
       retry: 'Tekrar dene', fail: 'Gönderilemedi. Cevapların duruyor; bağlantını kontrol edip tekrar dene.',
       yes: 'Evet', no: 'Hayır', skip: 'Bilmiyorum',
       which: 'Hangisi?', today: 'Bugün', tomorrow: 'Yarın', thanks: 'Teşekkürler {name}.', thanksPlain: 'Teşekkürler.',
-      less: 'Azalt', more: 'Artır', other: 'English', otherCode: 'EN', progress: 'İlerleme',
+      less: 'Azalt', more: 'Artır', rec: 'Önerilen günler',
+      meta: '{n} soru · 1 dakika', other: 'English', otherCode: 'EN', progress: 'İlerleme',
       empty: 'Bu bağlantıda soru yok.', locale: 'tr-TR' },
     en: { start: 'Build my plan', next: 'Continue', done: 'Done', back: 'Back', reviewTitle: 'One last check',
       reviewHint: 'Tap anything you want to change.', send: 'Send my answers', sending: 'Sending…',
       retry: 'Try again', fail: 'Couldn’t send. Your answers are still here; check your connection and try again.',
       yes: 'Yes', no: 'No', skip: 'I don’t know',
       which: 'Which one?', today: 'Today', tomorrow: 'Tomorrow', thanks: 'Thank you, {name}.', thanksPlain: 'Thank you.',
-      less: 'Less', more: 'More', other: 'Türkçe', otherCode: 'TR', progress: 'Progress',
+      less: 'Less', more: 'More', rec: 'Recommended days',
+      meta: '{n} questions · 1 minute', other: 'Türkçe', otherCode: 'TR', progress: 'Progress',
       empty: 'This link has no questions.', locale: 'en-GB' }
   };
   var ICON = {
-    brand: '<svg viewBox="170 140 710 672" aria-hidden="true"><path d="M179.2 235.0 L394.2 802.7 L577.1 802.7 L362.1 235.0Z" opacity=".5"/><path d="M708.0 199.2 L429.8 802.7 L618.0 802.7 L863.2 270.8 L869.3 252.7 L871.1 233.5 L868.6 214.6 L862.0 196.6 L851.5 180.6 L837.8 167.3 L821.4 157.3 L803.3 151.3 L784.1 149.5 L765.2 152.0 L747.2 158.6 L731.2 169.1 L717.9 182.8Z"/></svg>',
+    brand: '<svg viewBox="170 140 710 672" aria-hidden="true"><path class="rear" d="M179.2 235.0 L394.2 802.7 L577.1 802.7 L362.1 235.0Z" opacity=".5"/><path class="front" d="M708.0 199.2 L429.8 802.7 L618.0 802.7 L863.2 270.8 L869.3 252.7 L871.1 233.5 L868.6 214.6 L862.0 196.6 L851.5 180.6 L837.8 167.3 L821.4 157.3 L803.3 151.3 L784.1 149.5 L765.2 152.0 L747.2 158.6 L731.2 169.1 L717.9 182.8Z"/></svg>',
     globe: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.6 2.6 3.9 5.6 3.9 9s-1.3 6.4-3.9 9c-2.6-2.6-3.9-5.6-3.9-9S9.4 5.6 12 3z"/></svg>',
     chevron: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>',
     check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
@@ -439,6 +464,17 @@
         : q.type === 'text' || q.type === 'single' ? { v: '' } : { v: [], note: '' };
     }
     return S.answers[q.id];
+  }
+  /** The answers the coach recommends (`rec=mon,wed` in the question's settings, or the built-in set's). */
+  function recommended(q) {
+    var list = q.cfg.rec;
+    if (list === undefined && FALLBACK) {
+      FALLBACK.questions.forEach(function (f) {
+        var found = f.id === q.id && /(?:^|;)\s*rec=([^;]*)/.exec(f.settings || '');
+        if (found) list = found[1];
+      });
+    }
+    return String(list || '').split(',').map(function (v) { return v.trim(); }).filter(String);
   }
   function decimals(q) { var s = String(q.cfg.step || 1); return s.indexOf('.') === -1 ? 0 : s.length - s.indexOf('.') - 1; }
   function shownNumber(q, value) {
@@ -529,18 +565,21 @@
     function sync() {
       var now = values();
       nodes.forEach(function (n) { n.node.setAttribute('aria-pressed', String(now.indexOf(n.v) !== -1)); });
-      count.textContent = min > 1 ? now.length + ' / ' + min : '';
+      count.textContent = min > 1 ? now.length + '/' + min : '';
       count.className = 'count' + (now.length >= min ? ' met' : '');
     }
+    var anyRec = false;
     days.forEach(function (day) {
-      var node = el('button', { class: 'day', type: 'button', 'aria-label': day.full,
+      if (day.rec) anyRec = true;
+      var node = el('button', { class: 'day' + (day.rec ? ' rec' : ''), type: 'button',
+        'aria-label': day.full + (day.rec ? ' · ' + t('rec') : ''),
         onclick: function () { onPick(day.v); tick(); sync(); refreshDock(); } },
         strip ? [el('span', { text: day.short }), el('b', { text: day.date })] : [document.createTextNode(day.short)]);
       nodes.push({ v: day.v, node: node });
       row.appendChild(node);
     });
     sync();
-    return el('div', {}, [row, min > 1 ? count : null]);
+    return el('div', {}, [row, anyRec ? el('p', { class: 'rec-note', text: t('rec') }) : null, min > 1 ? count : null]);
   }
   function toggle(list, value) {
     var at = list.indexOf(value);
@@ -664,8 +703,10 @@
       ]);
     }
     if (q.type === 'dates' || q.cfg.look === 'days') {
+      var rec = recommended(q);
       var days = q.type === 'dates' ? dayList(q) : q.options.map(function (o) {
-        return { v: o.v, short: (S.lang === 'tr' ? o.shortTr : o.shortEn) || label(o).slice(0, 3), full: label(o) };
+        return { v: o.v, short: (S.lang === 'tr' ? o.shortTr : o.shortEn) || label(o).slice(0, 3), full: label(o),
+          rec: rec.indexOf(o.v) !== -1 };
       });
       return el('div', { class: 'control' }, [daysControl(q, days, function () { return a.v; },
         function (value) { toggle(a.v, value); save(); }, Number(q.cfg.min) || 1)]);
@@ -694,12 +735,28 @@
       el('h1', { text: first.cfg['screen_' + S.lang] || first.cfg.screen_tr || title(first), tabindex: '-1' }), stack]);
   }
 
+  /** A word as letters, so each one can land on its own. */
+  function letters(word, from) {
+    return word.split('').map(function (ch, index) {
+      var span = el('span', { class: 'ch', text: ch });
+      span.style.setProperty('--i', String(from + index));
+      return span;
+    });
+  }
   function introScreen() {
     if (N === 0) return el('section', { class: 'screen intro' }, [el('h1', { text: t('empty'), tabindex: '-1' })]);
+    var words = BRAND.split(/\s+/), at = 0;
+    var mark = el('h1', { class: 'wordmark', tabindex: '-1', 'aria-label': BRAND });
+    words.forEach(function (word, index) {
+      var kids = index === 0 ? [el('span', { class: 'vm', html: ICON.brand })] : [];
+      mark.appendChild(el('span', { class: 'l', 'aria-hidden': 'true' }, kids.concat(letters(word, at))));
+      at += word.length + 1;
+    });
     return el('section', { class: 'screen intro' }, [
-      el('div', { class: 'brandmark', html: ICON.brand }),
-      el('h1', { text: text('welcome_title') || BRAND, tabindex: '-1' }),
-      el('p', { class: 'hint', text: text('welcome_body') })
+      mark,
+      text('welcome_eyebrow') ? el('p', { class: 'eyebrow', text: text('welcome_eyebrow') }) : null,
+      el('p', { class: 'hint', text: text('welcome_body') }),
+      el('p', { class: 'meta', text: t('meta').replace('{n}', String(N)) })
     ]);
   }
 
@@ -733,11 +790,9 @@
     return el('section', { class: 'screen sent' }, [
       el('div', { html: ICON.tick }),
       el('h1', { text: (first ? t('thanks').replace('{name}', first) + ' ' : '') + (text('sent_title') || t('thanksPlain')), tabindex: '-1' }),
+      text('sent_body') ? el('p', { class: 'hint', text: text('sent_body') }) : null,
       lines.length ? el('h2', { text: text('before_heading') }) : null,
-      lines.length ? list : null,
-      text('sent_close') ? el('p', { class: 'close', text: text('sent_close') }) : null,
-      el('div', { class: 'signoff' }, [el('span', { class: 'm', html: ICON.brand }),
-        document.createTextNode(BRAND)])
+      lines.length ? list : null
     ]);
   }
 
@@ -750,7 +805,7 @@
     backBtn.hidden = S.at <= FIRST || S.sent || S.sending;
     backBtn.setAttribute('aria-label', t('back'));
     progress.hidden = S.at === -1 || S.sent || N === 0;
-    lockup.hidden = !(S.at === -1 && !S.sent && N > 0);
+    lockup.hidden = S.at === -1 && !S.sent;
     progress.setAttribute('aria-label', t('progress'));
     var share = N ? Math.max(0, Math.min(1, (S.at + 1) / (FINAL + 1))) : 0;
     progress.firstElementChild.style.transform = 'scaleX(' + share + ')';
@@ -758,7 +813,7 @@
     langBtn.innerHTML = ICON.globe;
     langBtn.appendChild(document.createTextNode(t('other')));
     langBtn.setAttribute('aria-label', t('other'));
-    langBtn.hidden = S.sending;
+    langBtn.hidden = S.sending && !S.sent;
     errorBox.hidden = !(S.failed && S.at === FINAL);
     errorBox.textContent = t('fail');
     skipBtn.hidden = !(q && q.type === 'number' && q.cfg.skip === 'yes');
@@ -774,7 +829,7 @@
   function stagger(screen, base) {
     var at = 0;
     Array.prototype.forEach.call(screen.querySelectorAll(
-      '.brandmark, h1, .hint, .num, .unit, .ruler, .item, .days, .count, .field, .tick, h2, ol > li, .close, .signoff, .rows, .part > .sub'
+      'h1:not(.wordmark), .eyebrow, .hint, .meta, .num, .unit, .ruler, .item, .days, .rec-note, .count, .field, .tick, h2, ol > li, .rows, .part > .sub'
     ), function (node) {
       if (node.closest('.more')) return;
       node.classList.add('land');
@@ -797,7 +852,7 @@
       stage.removeChild(old);
     }
     if (direction) screen.classList.add(direction);
-    if (direction && direction !== 'swap') stagger(screen, direction === 'first' ? 120 : old ? 90 : 0);
+    if (direction && direction !== 'swap') stagger(screen, direction === 'first' ? (S.at === -1 ? 1000 : 120) : old ? 90 : 0);
     stage.appendChild(screen);
     current = screen;
     refreshDock();
@@ -831,39 +886,53 @@
     go(S.at - 1, 'back');
   }
 
+  /**
+   * The thank-you screen comes at once and the answers travel behind it (the sheet takes a few seconds to
+   * answer). They stay saved on this phone until the sheet confirms, the browser finishes the request even if
+   * the page is closed, and a failed try is repeated; the sheet writes a repeated submission once. If it still
+   * fails, the person is brought back to the last question with the reason and a retry.
+   */
   function send() {
     var answers = {};
     QUESTIONS.forEach(function (q) { answers[q.id] = cell(q); });
-    var payload = { code: BOOT.code || '', lang: S.lang, ref: S.ref, answers: answers };
-    var finished = false;
-    S.sending = true; S.failed = false;
-    refreshDock();
+    var body = JSON.stringify({ fn: 'submitIntake', payload: { code: BOOT.code || '', lang: S.lang, ref: S.ref, answers: answers } });
+    var tries = 0, settled = false;
+    S.sent = true; S.sending = true; S.failed = false;
+    var head = draw('fwd').querySelector('h1');
+    if (head) { try { head.focus({ preventScroll: true }); } catch (e) {} }
     function done(ok) {
-      if (finished) return;
-      finished = true;
+      if (settled) return;
+      if (!ok && tries < 3) return attempt();
+      settled = true;
       S.sending = false;
       if (ok) {
-        S.sent = true;
         try { localStorage.removeItem(STORE); } catch (e) {}
-        var head = draw('fwd').querySelector('h1');
-        if (head) { try { head.focus({ preventScroll: true }); } catch (e) {} }
-      } else {
-        S.failed = true;
         refreshDock();
+      } else {
+        S.sent = false; S.failed = true;
+        draw('back');
       }
     }
-    setTimeout(function () { done(false); }, 25000);
-    if (query.mock) {
-      // A preview: nothing is sent anywhere.
-      var fail = query.fail && !send.tried;
-      send.tried = true;
-      setTimeout(function () { done(!fail); }, 900);
-      return;
+    function attempt() {
+      tries += 1;
+      var over = false;
+      var finish = function (ok, wait) {
+        if (over) return;
+        over = true;
+        clearTimeout(timer);
+        setTimeout(function () { done(ok); }, wait || 0);
+      };
+      var timer = setTimeout(function () { finish(false); }, 30000);
+      if (query.mock) {
+        // A preview: nothing is sent anywhere.
+        return setTimeout(function () { finish(!query.fail); }, 900);
+      }
+      fetch(API, { method: 'POST', credentials: 'omit', keepalive: true, body: body })
+        .then(function (response) { return response.json(); })
+        .then(function (result) { finish(!!(result && result.ok)); })
+        .catch(function () { finish(false, 1500); });
     }
-    fetch(API, { method: 'POST', credentials: 'omit', body: JSON.stringify({ fn: 'submitIntake', payload: payload }) })
-      .then(function (response) { return response.json(); })
-      .then(function (result) { done(!!(result && result.ok)); })
-      .catch(function () { done(false); });
+    attempt();
   }
 
   document.onkeydown = function (e) {
@@ -881,7 +950,9 @@
   });
   langBtn.onclick = function () {
     S.lang = S.lang === 'tr' ? 'en' : 'tr';
-    try { localStorage.setItem(STORE, JSON.stringify({ answers: S.answers, lang: S.lang, at: S.at, ref: S.ref })); } catch (e) {}
+    if (!S.sent || S.sending) {
+      try { localStorage.setItem(STORE, JSON.stringify({ answers: S.answers, lang: S.lang, at: S.at, ref: S.ref })); } catch (e) {}
+    }
     redraw(true, 'swap');
   };
   draw(opening ? 'first' : null);
